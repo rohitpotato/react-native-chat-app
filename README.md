@@ -1,5 +1,7 @@
 # react-native-chat-app
-A react native chat application built using firebase, firebase cloud functions and react-native-gifted-chat.
+A react native chat application built using firebase, firebase cloud functions and react-native-gifted-chat. 
+
+*(Feel free to open any issues if found.)*
 
 # Features
 
