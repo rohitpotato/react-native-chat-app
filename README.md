@@ -118,4 +118,5 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
         catch(e => {
           res.json({ error: 'There was an error.', e: e.toString() });
         })
-    })```
+    })
+```
