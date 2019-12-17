@@ -24,7 +24,7 @@ A react native chat application built using firebase, firebase cloud functions a
 3. **[Initialize a firebase cloud function project](https://firebase.google.com/docs/functions/get-started).**
 4. Download your admin sdk key file from *`https://console.firebase.google.com/u/0/project/YOUR_PROJECT_ID/settings/serviceaccounts/adminsdk`* and paste it inside the `functions` directory.
 
-## Add the following code to your `functions/index.js`:
+## Add the following code to your `functions/index.js`: (For self-destucting messages and online/offline presence to work)
 
 ```const functions = require('firebase-functions');
 const {performance} = require('perf_hooks');
