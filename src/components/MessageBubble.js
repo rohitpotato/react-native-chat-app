@@ -199,8 +199,7 @@ export default class Bubble extends React.Component {
 
 }
 
-const markdownStyle = {
-
+const markdownStyle = StyleSheet.create({
   autolink: {
     color: 'blue',
   },
@@ -213,7 +212,7 @@ const markdownStyle = {
   blockQuoteSectionBar: {
     width: 3,
     height: null,
-    // backgroundColor: 'grey',
+    backgroundColor: '#DDDDDD',
     marginRight: 15,
   },
   bgImage: {
@@ -232,10 +231,8 @@ const markdownStyle = {
     alignSelf: 'stretch',
   },
   codeBlock: {
-    fontFamily: 'RobotoMono-Regular',
-    backgroundColor: 'grey',
-    padding: 20,
-    fontSize: 12,
+    fontFamily: 'Courier',
+    fontWeight: '500',
   },
   del: {
     textDecorationLine: 'line-through',
@@ -266,7 +263,7 @@ const markdownStyle = {
     fontSize: 11,
   },
   hr: {
-    backgroundColor: 'grey',
+    backgroundColor: '#cccccc',
     height: 1,
   },
   image: {
@@ -279,17 +276,48 @@ const markdownStyle = {
     flex: 1,
     resizeMode: 'cover',
   },
-  inlineCode: {
+  codeInline: {
     backgroundColor: 'grey',
     borderColor: '#dddddd',
     borderRadius: 3,
     borderWidth: 1,
     fontFamily: 'RobotoMono-Regular',
     fontSize: 12,
-    color: 'black'
+    padding: 7,
+    color: 'white'
+  },
+    codeBlock: {
+    fontFamily: 'RobotoMono-Regular',
+    backgroundColor: 'grey',
+    padding: 20,
+    fontSize: 12,
+    color: 'white'
+  },
+  list: {
+    backgroundColor: 'red'
+  },
+  sublist:{
+    paddingLeft: 20,
+    width: Dimensions.get('window').width - 60,
+  },
+  listItem: {
+    flexDirection: 'row',
+  },
+  listItemText: {
+    flex: 1,
+    
+  },
+  listItemBullet: {
+    fontSize: 20,
+    lineHeight: 20,
+  },
+  listItemNumber: {
+    fontWeight: 'bold',
+  },
+  listRow: {
+    flexDirection: 'row',
   },
   paragraph: {
-    // backgroundColor: 'grey',
     marginTop: 10,
     marginBottom: 10,
     flexWrap: 'wrap',
@@ -320,6 +348,21 @@ const markdownStyle = {
   strong: {
     fontWeight: 'bold',
   },
+  table: {
+    borderWidth: 1,
+    borderColor: '#222222',
+    borderRadius: 3,
+  },
+  tableHeader: {
+    backgroundColor: '#222222',
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+  },
+  tableHeaderCell: {
+    color: '#ffffff',
+    fontWeight: 'bold',
+    padding: 5,
+  },
   tableRow: {
     //borderBottomWidth: 1,
     borderColor: '#222222',
@@ -333,10 +376,9 @@ const markdownStyle = {
     padding: 5,
   },
   text: {
-    color: '#222222',
-    fontFamily: 'RobotoMono-Regular',
+    color: 'white',
     fontSize: 12,
-    color: 'white'
+    fontFamily: 'RobotoMono-Regular'
   },
   textRow: {
     flexDirection: 'row',
@@ -345,7 +387,8 @@ const markdownStyle = {
     borderColor: '#222222',
     borderBottomWidth: 1,
   },
-};
+})
+
 
 // Note: Everything is forced to be "left" positioned with this component.
 // The "right" position is only used in the default Bubble.
