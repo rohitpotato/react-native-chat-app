@@ -195,7 +195,7 @@ class AddChannel extends React.Component {
             <LinearGradient colors={redux.container.colors} style={{ flex: 1 }}>
                 <Header 
                     leftIcon
-                    headerTextStyle={{ fontSize: 18, fontFamily: 'RobotoMono-Regular', color: 'black', }}
+                    headerTextStyle={{ fontSize: 18, fontFamily: 'RobotoMono-Regular', color: 'white', }}
                     titleText="CHANNELS"
                 />
                  <KeyboardAwareScrollView 
@@ -218,7 +218,7 @@ class AddChannel extends React.Component {
                                 source={{ uri: channelImage.uri }}
                                 style={{ width: 60, height: 60 }}
                             /> : 
-                            <FontAwesome name="file-image-o" color="grey" size={60}/>}
+                            <FontAwesome name="file-image-o" color="white" size={60}/>}
                     </View>
                     <View style={{ flex: 1, justifyContent: 'center' }}>
                             <Text style={styles.textStyle}>Upload an image</Text>
@@ -231,6 +231,7 @@ class AddChannel extends React.Component {
                         containerStyle={{ marginLeft: ScreenWidth*0.07 }}
                         inputContainerStyle={styles.inputContainerStyle}
                         inputStyle={{ ...styles.textStyle, fontSize: 14 }}
+                        placeholderTextColor="grey"
                         placeholder="Enter Channel Name"
                         onChangeText={(text) => this.handleChange('channel', text)}
                         value={channel}
@@ -244,6 +245,7 @@ class AddChannel extends React.Component {
                         inputContainerStyle={styles.inputContainerStyle}
                         inputStyle={{ ...styles.textStyle, fontSize: 14 }}
                         placeholder="Enter Channel Description"
+                        placeholderTextColor="grey"
                         multiline
                         onChangeText={(text) => this.handleChange('channelAbout', text)}
                         value={channelAbout}

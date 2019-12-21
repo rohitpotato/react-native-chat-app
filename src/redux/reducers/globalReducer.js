@@ -8,7 +8,7 @@ const initialState = {
     appTheme: 'dark',
     styles: {
         container: {
-            colors: ['#f5f7fa', '#c3cfe2'],
+            colors: ['#363940', '#363940'],
             //backgroundColor: 'black',
             flex: 1
         },

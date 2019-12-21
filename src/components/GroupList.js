@@ -41,7 +41,7 @@ class GroupList extends React.PureComponent {
                     // ViewComponent={LinearGradient} // Only if no expo
                     leftAvatar={{ rounded: true, source: { uri: channel.iconUrl } }}
                     title={channel.name}
-                    titleStyle={{ color: 'black', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
+                    titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
                     subtitle={channel.about}
                     subtitleStyle={{ color: 'grey', fontSize: 12 }}
                     //subtitle="Vice Chairman"

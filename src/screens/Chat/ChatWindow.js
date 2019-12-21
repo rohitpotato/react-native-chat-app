@@ -1,14 +1,20 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { withNavigation } from 'react-navigation';
 import { GiftedChat, } from 'react-native-gifted-chat';
 import LinearGradient from 'react-native-linear-gradient';
+
 import { Header } from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import { BackButton, Center, RightChatIcon } from '../../components/HeaderComponents';
+
 import Modal from 'react-native-modal';
 import GiphyComponent from '../../components/GiphyComponent';
 import TimerModal from '../../components/TimerModal';
+
+import MessageComponent from '../../components/MessageComponent';
 
 import {connect} from 'react-redux';
 import {GIPHY_API_KEY, MESSAGE_REMOVER_CLOUD_URL} from '../../config/constants';
@@ -25,6 +31,7 @@ class ChatWindow extends React.Component {
     timer_modal_visible: false,
     messagesRef: firebase.firestore().collection('messages'),
     privateMessagesRef: firebase.firestore().collection('privateMessages'),
+    code: false, 
     gifQuery: '',
     selected_gif: '',
     random_gifs: [],
@@ -56,6 +63,10 @@ class ChatWindow extends React.Component {
     } catch(e) {
       console.log(e);
     } 
+  }
+
+  onBackPress = () => {
+    this.props.navigation.goBack();
   }
 
   getChat = () => {
@@ -98,8 +109,7 @@ class ChatWindow extends React.Component {
     return this.props.channel.currentChannel.uid;
   }
 
-  createMessage = (data, mode) => {
-    let newobj = {}
+  createMessage = (data = null, mode) => {
     const newMessageObject = {
       // text: messages[0].text,
       createdAt: Date.now(),
@@ -112,15 +122,17 @@ class ChatWindow extends React.Component {
       }
     };
 
-    if(mode=='text') {
-      newMessageObject.text = data;
-    } else {
+    if(this.state.selected_gif) {
       newMessageObject.messageType = 'image'
+      newMessageObject.image = this.state.selected_gif;
+    } else if (this.state.code) {
+      newMessageObject.messageType = 'code'
       newMessageObject.image = data;
+    } else {
+      newMessageObject.text = data;
     }
 
     return newMessageObject;
-
   }
 
   onSend(messages = []) {
@@ -128,14 +140,10 @@ class ChatWindow extends React.Component {
     const ref = this.props.channel.currentChannel.isPrivate ? privateMessagesRef : messagesRef;
     const uid = this.getChannelId();
 
-    let newMessageObject = {};
+    let newMessageObject = {};  
 
-    if(this.state.selected_gif) {
-       newMessageObject = this.createMessage(this.state.selected_gif, 'image') 
-    } else {
-      newMessageObject = this.createMessage(messages[0].text, 'text')
-    }
-    // console.log('NEW MESSAGE OBJECT', newMessageObject);
+    newMessageObject = this.createMessage(messages[0] ? messages[0].text : null);
+    console.log(newMessageObject);
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }), () => {   
@@ -160,11 +168,14 @@ class ChatWindow extends React.Component {
 
   renderChatActions = () => {
     return (
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between', margin: 4}}>
+        <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 4}}>
         <TouchableOpacity style={{ paddingLeft: 3 }} onPress={this.toggleGifModal}>
             <MaterialIcons name="gif" color="black" size={32} />
         </TouchableOpacity>
-        <TouchableOpacity style={{ paddingLeft: 3 }} onPress={this.toggleTimerModal} >
+        <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.toggleGifModal}>
+            <Entypo name="code" color="black" size={26} />
+        </TouchableOpacity>
+        <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.toggleTimerModal} >
             <EvilIcons name="clock" size={32} color="black"/>
         </TouchableOpacity>
       </View>
@@ -211,7 +222,6 @@ class ChatWindow extends React.Component {
   }
 
   onDurationSelect = (dur) => {
-   
     this.setState({ timer_duration: dur, timer_modal_visible: false });
   }
 
@@ -222,16 +232,20 @@ class ChatWindow extends React.Component {
     this.messageListener();
   }
 
+  renderMessage = (props) => {
+      return <MessageComponent {...props}/>
+  }
+
   render() {
     const {styles, dimensions} = this.props.global;
     const {currentChannel} = this.props.channel;
-    const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration } = this.state;
+    const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration, extrasModal } = this.state;
 
     return (
-    <LinearGradient colors={styles.container.colors} style={styles.container}>
+    <LinearGradient locations={[1, 0]} colors={styles.container.colors} style={styles.container}>
       <Header
-        containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.08 }}
-        leftComponent={ <BackButton /> }
+        containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#d3d3d3', elevation: 1 }}
+        leftComponent={ <BackButton onBackPress={this.onBackPress} /> }
         centerComponent={ <Center uri={currentChannel.iconUrl} name={currentChannel.name} /> }
         placement="left"
         rightComponent={ <RightChatIcon /> }
@@ -240,12 +254,15 @@ class ChatWindow extends React.Component {
             messages={this.state.messages}
             onSend={messages => this.onSend(messages)}
             renderActions={this.renderChatActions}
+            renderMessage={this.renderMessage}
             user={{
               _id: this.props.auth.user.uid,
               name: this.props.auth.user.name,
               avatar: this.props.auth.user.avatar
             }}
         />
+
+        { /* GIF MODAL */ }
       <View>
         <Modal 
           animationIn="slideInUp"
@@ -268,6 +285,8 @@ class ChatWindow extends React.Component {
             />
         </Modal>
       </View>
+
+      { /* TIMER MODAL */ }
 
       <View>
         <Modal 
@@ -300,4 +319,4 @@ const mapStateToProps = state => ({
   channel: state.channel
 })
 
-export default connect(mapStateToProps)(ChatWindow);
+export default withNavigation(connect(mapStateToProps)(ChatWindow));

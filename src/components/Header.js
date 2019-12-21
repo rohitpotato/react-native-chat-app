@@ -16,7 +16,7 @@ const Header = props => {
             </View> : null}
 
             <View style={{...styles.headerContainer, marginLeft: dimensions.width*0.05}}>
-                <Text style={props.headerTextStyle ? props.headerTextStyle : styles.headerText}>{props.titleText ? props.titleText : 'Destruct Native'}</Text>
+                <Text style={props.headerTextStyle ? props.headerTextStyle : styles.headerText}>{props.titleText ? props.titleText : 'Application Title'}</Text>
             </View>
 
             <View styles={styles.rightIconsContaier}>

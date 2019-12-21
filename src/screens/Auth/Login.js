@@ -124,9 +124,9 @@ class Login extends React.Component {
                         )}
                         placeholder="EMAIL ADDRESS"
                         clear
-                        textInputStyle={{color: 'black'}}
+                        textInputStyle={{color: 'white'}}
                         //container={{ borderBottomColor: 'red' }}
-                        placeholderTextColor="black"
+                        placeholderTextColor="white"
                         onChangeText={(text) => this.handleTextInput('email', text)}
                         value={email}
                         handleClear={() => this.handleClearInput('email')}
@@ -137,9 +137,9 @@ class Login extends React.Component {
                         )}
                         placeholder="PASSWORD"
                         //clear
-                        textInputStyle={{color: 'black'}}
+                        textInputStyle={{color: 'white'}}
                         show
-                        placeholderTextColor="black"
+                        placeholderTextColor="white"
                         onChangeText={(text) => this.handleTextInput('password', text)}
                         value={password}
                         handleClear={() => this.handleClearInput('password')}

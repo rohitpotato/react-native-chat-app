@@ -134,7 +134,7 @@ class Register extends React.Component {
                     {errors.map((error, index) => {
                         return (
                             <View key={index} style={{ margin: 10, justifyContent: 'center' }}>
-                                <Text style={{...styles.headerTextStyle, color: 'black',ontSize: 15}}>
+                                <Text style={{...styles.headerTextStyle, color: 'white',ontSize: 15}}>
                                    {error}
                                 </Text>
                             </View>
@@ -148,8 +148,8 @@ class Register extends React.Component {
                             <MaterialIcons name="person" size={20} color="grey"/>
                         )}
                         placeholder="YOUR NAME"
-                        textInputStyle={{color: 'black'}}
-                        placeholderTextColor="black"
+                        textInputStyle={{color: 'white'}}
+                        placeholderTextColor="white"
                         clear
                         value={name}
                         onChangeText={(text) => this.handleTextInput('name', text)}
@@ -161,9 +161,9 @@ class Register extends React.Component {
                         )}
                         placeholder="EMAIL ADDRESS"
                         clear
-                        textInputStyle={{color: 'black'}}
+                        textInputStyle={{color: 'white'}}
                         //container={{ borderBottomColor: 'red' }}
-                        placeholderTextColor="black"
+                        placeholderTextColor="white"
                         onChangeText={(text) => this.handleTextInput('email', text)}
                         value={email}
                         handleClear={() => this.handleClearInput('email')}
@@ -174,9 +174,9 @@ class Register extends React.Component {
                         )}
                         placeholder="PASSWORD"
                         //clear
-                        textInputStyle={{color: 'black'}}
+                        textInputStyle={{color: 'white'}}
                         show
-                        placeholderTextColor="black"
+                        placeholderTextColor="white"
                         onChangeText={(text) => this.handleTextInput('password', text)}
                         value={password}
                         handleClear={() => this.handleClearInput('password')}
@@ -189,9 +189,9 @@ class Register extends React.Component {
                         )}
                         placeholder="CONFIRM PASSWORD"
                         //clear
-                        textInputStyle={{color: 'black'}}
+                        textInputStyle={{color: 'white'}}
                         show
-                        placeholderTextColor="black"
+                        placeholderTextColor="white"
                         onChangeText={(text) => this.handleTextInput('confirmPassword', text)}
                         value={confirmPassword}
                         handleClear={() => this.handleClearInput('confirmPassword')}

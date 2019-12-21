@@ -36,7 +36,7 @@ class UserList extends React.Component {
                 // ViewComponent={LinearGradient} // Only if no expo
                 leftAvatar={{ rounded: true, source: { uri: user.avatar } }}
                 title={user.name}
-                titleStyle={{ color: 'black', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
+                titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
                 subtitleStyle={{ color: 'white' }}
                 //subtitle="Vice Chairman"
                 chevron={{ color: 'grey' }}
