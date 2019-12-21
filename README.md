@@ -8,6 +8,7 @@ A react native chat application built using firebase, firebase cloud functions a
 1. Groups/Private Chat.
 2. Self-destructing messages (set the timer).
 3. Share Gifs.
+4. MarkDown Support.
 
 ## TODO
 1. Ios Support.
