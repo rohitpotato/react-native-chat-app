@@ -12,12 +12,14 @@ A react native chat application built using firebase, firebase cloud functions a
 
 ## TODO
 1. Ios Support.
-2. Implement Private Chat.
+2. <del>Implement Private Chat.<del>
 3. User Search.
 4. UI Improvements.
 5. Information modals for groups and user info.
 6. Send Images.
 7. Optimization and Refactor.
+8. Location Sharing
+9. <del>Markdown Support<del>
 
 # Installation
 1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.
@@ -123,3 +125,4 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
         })
     })
 ```
+## Make sure you have delpoyed your cloud function!
