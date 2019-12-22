@@ -31,7 +31,8 @@ class ChatWindow extends React.Component {
     timer_modal_visible: false,
     messagesRef: firebase.firestore().collection('messages'),
     privateMessagesRef: firebase.firestore().collection('privateMessages'),
-    code: false, 
+    doc_1: '',
+    doc_2: '',
     gifQuery: '',
     selected_gif: '',
     random_gifs: [],
@@ -71,8 +72,13 @@ class ChatWindow extends React.Component {
 
   getChat = () => {
     const uid = this.getChannelId();
+    console.log(this.props.channel)
+    console.log(uid); 
+    
     // console.log('uid', uid);
-    const ref = this.props.channel.currentChannel.isPrivate ? this.state.privateMessagesRef : this.state.messagesRef;
+    const ref = this.props.channel.isPrivate ? this.state.privateMessagesRef : this.state.messagesRef;
+    console.log(ref);
+    // return;
     this.messageListener = ref.doc(uid).collection('chats').orderBy('createdAt','desc').onSnapshot(querySnapShot => {
       let messages = [];
       querySnapShot.forEach((query) => {
@@ -82,7 +88,7 @@ class ChatWindow extends React.Component {
               channelId: uid,
               messageId: query.id,
               timer: query.data().duration,
-              type: this.props.channel.currentChannel.isPrivate ? 'private' : 'group'
+              type: this.props.channel.isPrivate ? 'private' : 'group'
             }
             this.cloudDelete(channelData);
           }
@@ -101,11 +107,12 @@ class ChatWindow extends React.Component {
   }
 
   getChannelId = () => {
-    if(this.props.channel.currentChannel.isPrivate) {
+    if(this.props.channel.isPrivate) {
       return this.props.auth.user.uid > this.props.channel.currentChannel.uid ? 
-        `${this.props.auth.user.uid}/${this.props.channel.currentChannel.uid}` : 
-        `${this.props.channel.currentChannel.uid}/${this.props.auth.user.uid}`;
+       ( this.props.auth.user.uid + this.props.channel.currentChannel.uid ) : 
+        ( this.props.channel.currentChannel.uid + this.props.auth.user.uid )  
     }
+
     return this.props.channel.currentChannel.uid;
   }
 
@@ -137,7 +144,7 @@ class ChatWindow extends React.Component {
 
   onSend(messages = []) {
     const { privateMessagesRef, messagesRef } = this.state;
-    const ref = this.props.channel.currentChannel.isPrivate ? privateMessagesRef : messagesRef;
+    const ref = this.props.channel.isPrivate ? privateMessagesRef : messagesRef;
     const uid = this.getChannelId();
 
     let newMessageObject = {};  
@@ -156,7 +163,7 @@ class ChatWindow extends React.Component {
             channelId: uid,
             messageId: sent.id,
             timer: 'not specified',
-            type: this.props.channel.currentChannel.isPrivate ? 'private' : 'group'
+            type: this.props.channel.isPrivate ? 'private' : 'group'
           }
           this.cloudDelete(channelData);
         }
@@ -246,7 +253,7 @@ class ChatWindow extends React.Component {
       <Header
         containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#d3d3d3', elevation: 1 }}
         leftComponent={ <BackButton onBackPress={this.onBackPress} /> }
-        centerComponent={ <Center uri={currentChannel.iconUrl} name={currentChannel.name} /> }
+        centerComponent={ <Center uri={currentChannel.iconUrl ? currentChannel.iconUrl : currentChannel.avatar} name={currentChannel.name} /> }
         placement="left"
         rightComponent={ <RightChatIcon /> }
       />

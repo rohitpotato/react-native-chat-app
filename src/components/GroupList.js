@@ -5,7 +5,7 @@ import {withNavigation} from 'react-navigation';
 import { ListItem, TouchableScale } from 'react-native-elements'
 import LinearGradient from 'react-native-linear-gradient';
 
-import { setChannel } from '../redux/actions/channelActions';
+import { setChannel, setPrivateChannel } from '../redux/actions/channelActions';
 
 const ScreenHeigth = Dimensions.get('window').height;
 const ScreenWidth = Dimensions.get('window').width;
@@ -18,6 +18,7 @@ class GroupList extends React.PureComponent {
     // }
 
     handlePress = () => {
+        this.props.setPrivateChannel(false);
         this.props.setChannel(this.props.channel);
         this.props.navigation.navigate('ChatWindow');
     }
@@ -83,4 +84,4 @@ const styles = StyleSheet.create({
 })
 
 
-export default withNavigation(connect(null, {setChannel})(GroupList));
+export default withNavigation(connect(null, {setChannel, setPrivateChannel})(GroupList));

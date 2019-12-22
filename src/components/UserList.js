@@ -1,9 +1,10 @@
 import React from 'react';
 import {View, Text, StyleSheet, Image, Dimensions, TouchableOpacity} from 'react-native';
-import {connect} from 'react-native';
+import {connect} from 'react-redux';
 import {withNavigation} from 'react-navigation';
 import { ListItem, TouchableScale } from 'react-native-elements'
 import LinearGradient from 'react-native-linear-gradient';
+import { setChannel, setPrivateChannel } from '../redux/actions/channelActions';
 
 const ScreenHeigth = Dimensions.get('window').height;
 const ScreenWidth = Dimensions.get('window').width;
@@ -16,6 +17,8 @@ class UserList extends React.Component {
     // }
 
     handlePress = () => {
+        this.props.setChannel(this.props.user);
+        this.props.setPrivateChannel(true);
         this.props.navigation.navigate('ChatWindow')
     }
 
@@ -25,6 +28,7 @@ class UserList extends React.Component {
             <ListItem
                 Component={TouchableScale}
                 friction={90} //
+                onPress={this.handlePress}
                 tension={100} // These props are passed to the parent component (here TouchableScale)
                 activeScale={0.95} //
                 containerStyle={{ backgroundColor: 'transparent' }}
@@ -74,4 +78,4 @@ const styles = StyleSheet.create({
     }
 })
 
-export default withNavigation(UserList);
+export default withNavigation(connect(null, { setPrivateChannel, setChannel })(UserList))
