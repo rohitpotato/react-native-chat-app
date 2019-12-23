@@ -9,17 +9,18 @@ A react native chat application built using firebase, firebase cloud functions a
 2. Self-destructing messages (set the timer).
 3. Share Gifs.
 4. MarkDown Support.
+5. Location Sharing
 
 ## TODO
 1. Ios Support.
 2. <del>Implement Private Chat.<del>
-3. User Search.
-4. UI Improvements.
-5. Information modals for groups and user info.
-6. Send Images.
-7. Optimization and Refactor.
-8. Location Sharing
-9. <del>Markdown Support<del>
+3. <del>Location Sharing<del>
+4. <del>Markdown Support<del>
+5. User Search.
+6. UI Improvements.
+7. Information modals for groups and user info.
+8. Send Images.
+9. Optimization and Refactor.
 
 # Installation
 1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.
