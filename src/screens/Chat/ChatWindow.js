@@ -2,12 +2,14 @@ import React from 'react'
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import { GiftedChat, } from 'react-native-gifted-chat';
+import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { Header } from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { BackButton, Center, RightChatIcon } from '../../components/HeaderComponents';
 
 import Modal from 'react-native-modal';
@@ -31,8 +33,7 @@ class ChatWindow extends React.Component {
     timer_modal_visible: false,
     messagesRef: firebase.firestore().collection('messages'),
     privateMessagesRef: firebase.firestore().collection('privateMessages'),
-    doc_1: '',
-    doc_2: '',
+    location: null,
     gifQuery: '',
     selected_gif: '',
     random_gifs: [],
@@ -72,13 +73,8 @@ class ChatWindow extends React.Component {
 
   getChat = () => {
     const uid = this.getChannelId();
-    console.log(this.props.channel)
-    console.log(uid); 
-    
-    // console.log('uid', uid);
     const ref = this.props.channel.isPrivate ? this.state.privateMessagesRef : this.state.messagesRef;
-    console.log(ref);
-    // return;
+
     this.messageListener = ref.doc(uid).collection('chats').orderBy('createdAt','desc').onSnapshot(querySnapShot => {
       let messages = [];
       querySnapShot.forEach((query) => {
@@ -88,6 +84,7 @@ class ChatWindow extends React.Component {
               channelId: uid,
               messageId: query.id,
               timer: query.data().duration,
+              messageType: query.data().messageType,
               type: this.props.channel.isPrivate ? 'private' : 'group'
             }
             this.cloudDelete(channelData);
@@ -98,12 +95,12 @@ class ChatWindow extends React.Component {
     })
   }
 
-  cloudDelete = (channelData) => {
-    axios.post(MESSAGE_REMOVER_CLOUD_URL, channelData).then((res) => {
-      console.log(res.data);
-    }).catch(e => {
-      console.log(e);
-    })
+  cloudDelete = async (channelData) => {
+    try {
+      await axios.post(MESSAGE_REMOVER_CLOUD_URL, channelData)
+     } catch(e) {
+       console.log(e);
+     }
   }
 
   getChannelId = () => {
@@ -132,9 +129,9 @@ class ChatWindow extends React.Component {
     if(this.state.selected_gif) {
       newMessageObject.messageType = 'image'
       newMessageObject.image = this.state.selected_gif;
-    } else if (this.state.code) {
-      newMessageObject.messageType = 'code'
-      newMessageObject.image = data;
+    } else if (this.state.location) {
+      newMessageObject.messageType = 'location'
+      newMessageObject.location = this.state.location;
     } else {
       newMessageObject.text = data;
     }
@@ -150,7 +147,6 @@ class ChatWindow extends React.Component {
     let newMessageObject = {};  
 
     newMessageObject = this.createMessage(messages[0] ? messages[0].text : null);
-    console.log(newMessageObject);
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }), () => {   
@@ -158,11 +154,15 @@ class ChatWindow extends React.Component {
         if(this.state.selected_gif) {
           this.setState({ selected_gif: '' });
         }
+        if(this.state.location) {
+          this.setState({ location: '' });
+        }
         if(newMessageObject.duration && newMessageObject.duration > 0) {
           let channelData = {
             channelId: uid,
             messageId: sent.id,
             timer: 'not specified',
+            messageType: newMessageObject.messageType,
             type: this.props.channel.isPrivate ? 'private' : 'group'
           }
           this.cloudDelete(channelData);
@@ -179,8 +179,8 @@ class ChatWindow extends React.Component {
         <TouchableOpacity style={{ paddingLeft: 3 }} onPress={this.toggleGifModal}>
             <MaterialIcons name="gif" color="black" size={32} />
         </TouchableOpacity>
-        <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.toggleGifModal}>
-            <Entypo name="code" color="black" size={26} />
+        <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.sendLocation}>
+            <FontAwesome name="location-arrow" color="black" size={26} />
         </TouchableOpacity>
         <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.toggleTimerModal} >
             <EvilIcons name="clock" size={32} color="black"/>
@@ -232,21 +232,29 @@ class ChatWindow extends React.Component {
     this.setState({ timer_duration: dur, timer_modal_visible: false });
   }
 
-  componentWillUnmount() {
+  renderMessage = (props) => {
+    return <MessageComponent {...props}/>
+  }
+
+  sendLocation = () => {
+    Geolocation.getCurrentPosition(info => {
+      this.setState({ location: info.coords }, () => {
+        this.onSend();
+      });
+    })
+  }
+
+componentWillUnmount() {
     // if(this.abortController.signal) {
     //   this.abortController.abort();
     // }
     this.messageListener();
   }
 
-  renderMessage = (props) => {
-      return <MessageComponent {...props}/>
-  }
-
   render() {
     const {styles, dimensions} = this.props.global;
     const {currentChannel} = this.props.channel;
-    const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration, extrasModal } = this.state;
+    const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration } = this.state;
 
     return (
     <LinearGradient locations={[1, 0]} colors={styles.container.colors} style={styles.container}>

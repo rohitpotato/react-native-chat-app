@@ -16,6 +16,7 @@ import {
 // import NativeSyntaxHighlighter from '../components/HighLighter';
 // import Markdown from 'react-native-markdown-package';
 import Markdown from 'react-native-markdown-renderer';
+import MapView from 'react-native-maps'
 
 import { Avatar ,MessageText, MessageImage, Time, utils, } from 'react-native-gifted-chat';
 
@@ -153,6 +154,52 @@ export default class Bubble extends React.Component {
     return null;
   }
 
+  renderLocation() {
+      if (this.props.currentMessage.location) {
+        return (
+          <TouchableOpacity
+            onPress={this.openMapAsync}
+          >
+            <MapView
+              style={[styles.mapView]}
+              region={{
+                latitude: this.props.currentMessage.location.latitude,
+                longitude: this.props.currentMessage.location.longitude,
+                latitudeDelta: 0.0922,
+                longitudeDelta: 0.0421,
+              }}
+              scrollEnabled={false}
+              zoomEnabled={false}
+            />
+          </TouchableOpacity>
+        )
+      }
+      return null
+    }
+  
+    openMapAsync = async () => {
+      const { currentMessage: { location = {} } = {} } = this.props
+  
+      const url = Platform.select({
+        ios: `http://maps.apple.com/?ll=${location.latitude},${
+          location.longitude
+        }`,
+        default: `http://maps.google.com/?q=${location.latitude},${
+          location.longitude
+        }`,
+      })
+  
+      try {
+        const supported = await Linking.canOpenURL(url)
+        if (supported) {
+          return Linking.openURL(url)
+        }
+        alert('Opening the map is not supported.')
+      } catch ({ message }) {
+        alert(message)
+      }
+    }
+
   renderCustomView() {
     if (this.props.renderCustomView) {
       return this.props.renderCustomView(this.props);
@@ -190,6 +237,7 @@ export default class Bubble extends React.Component {
               {messageHeader}
               {this.renderMessageImage()}
               {this.renderMessageText()}
+              {this.renderLocation()}
             </View>
           </View>
         </TouchableOpacity>
@@ -198,6 +246,80 @@ export default class Bubble extends React.Component {
   }
 
 }
+
+
+// Note: Everything is forced to be "left" positioned with this component.
+// The "right" position is only used in the default Bubble.
+const styles = StyleSheet.create({
+  standardFont: {
+    fontSize: 15,
+  },
+  slackMessageText: {
+    marginLeft: 0,
+    color: 'white',
+    fontSize: 13,
+    fontFamily: 'RobotoMono-Regular',
+    marginRight: 0,
+  },
+  container: {
+    flex: 1,
+    alignItems: 'flex-start',
+  },
+  wrapper: {
+    marginRight: 60,
+    minHeight: 20,
+    justifyContent: 'flex-end',
+  },
+  username: {
+    color:'white',
+    fontWeight: 'bold',
+  },
+  time: {
+    textAlign: 'left',
+    fontSize: 12,
+  },
+  timeContainer: {
+    marginLeft: 0,
+    marginRight: 0,
+    marginBottom: 0,
+  },
+  headerItem: {
+    marginRight: 10,
+  },
+  headerView: {
+    // Try to align it better with the avatar on Android.
+    marginTop: Platform.OS === 'android' ? -2 : 0,
+    flexDirection: 'row',
+    alignItems: 'baseline',
+  },
+  /* eslint-disable react-native/no-color-literals */
+  tick: {
+    backgroundColor: 'transparent',
+    color: 'white',
+  },
+  /* eslint-enable react-native/no-color-literals */
+  tickView: {
+    flexDirection: 'row',
+  },
+  slackImage: {
+    borderRadius: 3,
+    marginLeft: 0,
+    marginRight: 0,
+  },
+  slackAvatar: {
+    // The bottom should roughly line up with the first line of message text.
+    height: 40,
+    width: 40,
+    borderRadius: 3,
+  },
+  mapView: {
+    width: 150,
+    height: 100,
+    borderRadius: 13,
+    margin: 3,
+    backgroundColor: 'red'
+  },
+});
 
 const markdownStyle = StyleSheet.create({
   autolink: {
@@ -390,68 +512,3 @@ const markdownStyle = StyleSheet.create({
 })
 
 
-// Note: Everything is forced to be "left" positioned with this component.
-// The "right" position is only used in the default Bubble.
-const styles = StyleSheet.create({
-  standardFont: {
-    fontSize: 15,
-  },
-  slackMessageText: {
-    marginLeft: 0,
-    color: 'white',
-    fontSize: 13,
-    fontFamily: 'RobotoMono-Regular',
-    marginRight: 0,
-  },
-  container: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  wrapper: {
-    marginRight: 60,
-    minHeight: 20,
-    justifyContent: 'flex-end',
-  },
-  username: {
-    color:'white',
-    fontWeight: 'bold',
-  },
-  time: {
-    textAlign: 'left',
-    fontSize: 12,
-  },
-  timeContainer: {
-    marginLeft: 0,
-    marginRight: 0,
-    marginBottom: 0,
-  },
-  headerItem: {
-    marginRight: 10,
-  },
-  headerView: {
-    // Try to align it better with the avatar on Android.
-    marginTop: Platform.OS === 'android' ? -2 : 0,
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  /* eslint-disable react-native/no-color-literals */
-  tick: {
-    backgroundColor: 'transparent',
-    color: 'white',
-  },
-  /* eslint-enable react-native/no-color-literals */
-  tickView: {
-    flexDirection: 'row',
-  },
-  slackImage: {
-    borderRadius: 3,
-    marginLeft: 0,
-    marginRight: 0,
-  },
-  slackAvatar: {
-    // The bottom should roughly line up with the first line of message text.
-    height: 40,
-    width: 40,
-    borderRadius: 3,
-  },
-});
