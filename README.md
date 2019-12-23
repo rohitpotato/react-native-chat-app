@@ -30,7 +30,8 @@ A react native chat application built using firebase, firebase cloud functions a
 
 ## Add the following code to your `functions/index.js`: (For self-destucting messages and online/offline presence to work)
 
-```const functions = require('firebase-functions');
+```
+const functions = require('firebase-functions');
 const {performance} = require('perf_hooks');
 const admin = require('firebase-admin');
 admin.initializeApp({
@@ -40,12 +41,9 @@ admin.initializeApp({
 // Since this code will be running in the Cloud Functions environment
 // we call initialize Firestore without any arguments because it
 // detects authentication from the environment.
-
 const firestore = admin.firestore();
-
 // Create a new function which is triggered on changes to /status/{uid}
 // Note: This is a Realtime Database trigger, *not* Cloud Firestore.
-
 exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
     async (change, context) => {
       // Get the data written to Realtime Database
@@ -53,21 +51,17 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
 
       // Then use other event data to create a reference to the
       // corresponding Firestore document.
-      
       const userStatusFirestoreRef = firestore.doc(`status/${context.params.uid}`);
 
       // It is likely that the Realtime Database change that triggered
       // this event has already been overwritten by a fast change in
       // online / offline status, so we'll re-read the current data
       // and compare the timestamps.
-      
       const statusSnapshot = await change.after.ref.once('value');
       const status = statusSnapshot.val();
       console.log(status, eventStatus);
-      
       // If the current timestamp for this data is newer than
       // the data that triggered this event, we exit this function.
-      
       if (status.last_changed > eventStatus.last_changed) {
         return null;
       }
@@ -76,7 +70,6 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
       eventStatus.last_changed = new Date(eventStatus.last_changed);
 
       // ... and write it to Firestore.
-      
       return userStatusFirestoreRef.set(eventStatus);
     });
 
@@ -86,27 +79,29 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
         console.log('----------------------------------------------------------------------------------------------')
         let ref;
         const type = req.body.type;
+        console.log(req.body.type)
+        console.log(req.body.channelId);
+        console.log(req.body.messageId);
+        console.log(req.body.timer);
+        console.log(req.body.messageType);
         if(type === 'private') {
           ref = firestore.collection('privateMessages')
         } else {
           ref = firestore.collection('messages')
         }
-      
+        // console.log(ref);
         const channelId = req.body.channelId;
         const messageId = req.body.messageId;
         const timer = req.body.timer;
+        const messageType = req.body.messageType;
         ref.doc(channelId).collection('chats').doc(messageId).get().then((message) => {
           var newMessage = { ...message.data() };
           if(message.data().duration && message.data().duration > 0) {
-            if(newMessage.image) {
-              delete newMessage.image;
+            if (newMessage[`${messageType}`]) {
+              delete newMessage[`${messageType}`]
               newMessage.text = 'This message has been deleted.'
               newMessage.messageType = 'deleted';
               newMessage.duration = 0;
-            } else {
-              newMessage.text = 'This message has been deleted.'
-              newMessage.duration = 0;
-              newMessage.messageType = 'deleted';
             }
           } 
           return ({newMessage, duration: message.data().duration});
@@ -125,5 +120,6 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
           res.json({ error: 'There was an error.', e: e.toString() });
         })
     })
+    
 ```
 ## Make sure you have delpoyed your cloud function!
