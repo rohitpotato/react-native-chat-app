@@ -6,7 +6,7 @@ import store from '../redux/store'
 import firebase from '@react-native-firebase/app';
 //import auth from '@react-native-firebase/auth';
 import {withNavigation} from 'react-navigation';
-import {setUser} from '../redux/actions/authActions';
+import {setUser, clearUser} from '../redux/actions/authActions';
 
  class AuthLoading extends React.Component {
 
@@ -24,6 +24,7 @@ import {setUser} from '../redux/actions/authActions';
                 this.props.setUser(userObj);
                 this.props.navigation.navigate('Drawer')
             } else {
+                this.props.clearUser();
                 this.props.navigation.navigate('AuthStack')
             }
         })
@@ -67,4 +68,4 @@ const mapStateToProps = state => ({
     global: state.global
 })
 
-export default withNavigation(connect(mapStateToProps, { setUser })(AuthLoading));
+export default withNavigation(connect(mapStateToProps, { setUser, clearUser })(AuthLoading));

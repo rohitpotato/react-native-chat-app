@@ -10,7 +10,7 @@ import MessageBubble from './MessageBubble';
 
 const { isSameUser, isSameDay } = utils;
 
-export default class MessageComponent extends React.Component {
+export default class MessageComponent extends React.PureComponent {
 
   getInnerComponentProps() {
     const { containerStyle, ...props } = this.props;

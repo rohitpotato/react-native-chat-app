@@ -155,7 +155,7 @@ class Login extends React.Component {
                         onPress={this.handleLogin}
                         disabled={loading}
                    >
-                        {!loading ? <Text style={{...styles.headerTextStyle, color: 'white'}}>
+                        {!loading ? <Text style={styles.headerTextStyle}>
                             SIGN IN
                         </Text> : <ActivityIndicator size="small" color="green"/>}
                    </TouchableOpacity>
@@ -178,13 +178,14 @@ const styles = StyleSheet.create({
     card: {
         //backgroundColor: '#b2b2b2',
         // flex: 2,
-        elevation: 0.1,
+        // elevation: 0.1,
         margin: 10,
         borderRadius: 8
     },
     headerTextStyle: {
         //textAlign: 'center',
         fontSize: 15,
+        color: 'white',
         fontFamily: 'RobotoMono-Regular'
     },
     buttonContainer: {

@@ -47,7 +47,6 @@ class CustomDrawer extends React.Component {
             firebase.auth().signOut().then(() => {
                 this.setState({ loading: false }, () => {
                     this.props.navigation.navigate('AuthLoading');
-                    this.props.clearUser();
                 })
             })
        })

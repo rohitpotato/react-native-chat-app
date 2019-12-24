@@ -56,7 +56,12 @@ class Register extends React.Component {
                         name: authUser.displayName,
                         avatar: authUser.photoURL
                     }).then(() => {
-                        this.props.setUser(authUser._user.providerData[0])
+                        this.props.setUser({
+                            name: authUser._user.providerData[0].displayName,
+                            avatar: authUser._user.providerData[0].photoURL,
+                            email: authUser._user.providerData[0].email,
+                            uid: authUser._user.uid,
+                        })
                         this.setState({ loading: false, name: '', email: '', password: '', confirmPassword: '' }, () => {
                             this.props.navigation.navigate('Home');
                         });
@@ -206,7 +211,7 @@ class Register extends React.Component {
                         onPress={this.handleSignUp}
                         disabled={loading}
                    >
-                        {!loading ? <Text style={{...styles.headerTextStyle, color: 'white'}}>
+                        {!loading ? <Text style={styles.headerTextStyle}>
                             SIGN UP
                         </Text> : <ActivityIndicator size="small" color="green"/>}
                    </TouchableOpacity>
@@ -229,13 +234,14 @@ const styles = StyleSheet.create({
     card: {
         //backgroundColor: '#b2b2b2',
         // flex: 2,
-        elevation: 0.1,
+        // elevation: 0.1,
         margin: 10,
         borderRadius: 8
     },
     headerTextStyle: {
         //textAlign: 'center',
         fontSize: 15,
+        color: 'white',
         fontFamily: 'RobotoMono-Regular'
     },
     buttonContainer: {
