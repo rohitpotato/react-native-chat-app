@@ -9,17 +9,18 @@ A react native chat application built using firebase, firebase cloud functions a
 2. Self-destructing messages (set the timer).
 3. Share Gifs.
 4. MarkDown Support.
+5. Location Sharing
 
 ## TODO
 1. Ios Support.
 2. <del>Implement Private Chat.<del>
-3. User Search.
-4. UI Improvements.
-5. Information modals for groups and user info.
-6. Send Images.
-7. Optimization and Refactor.
-8. Location Sharing
-9. <del>Markdown Support<del>
+3. <del>Location Sharing<del>
+4. <del>Markdown Support<del>
+5. User Search.
+6. UI Improvements.
+7. Information modals for groups and user info.
+8. Send Images.
+9. Optimization and Refactor.
 
 # Installation
 1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.
@@ -29,7 +30,8 @@ A react native chat application built using firebase, firebase cloud functions a
 
 ## Add the following code to your `functions/index.js`: (For self-destucting messages and online/offline presence to work)
 
-```const functions = require('firebase-functions');
+```
+const functions = require('firebase-functions');
 const {performance} = require('perf_hooks');
 const admin = require('firebase-admin');
 admin.initializeApp({
@@ -85,27 +87,29 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
         console.log('----------------------------------------------------------------------------------------------')
         let ref;
         const type = req.body.type;
+        console.log(req.body.type)
+        console.log(req.body.channelId);
+        console.log(req.body.messageId);
+        console.log(req.body.timer);
+        console.log(req.body.messageType);
         if(type === 'private') {
           ref = firestore.collection('privateMessages')
         } else {
           ref = firestore.collection('messages')
         }
-      
+        // console.log(ref);
         const channelId = req.body.channelId;
         const messageId = req.body.messageId;
         const timer = req.body.timer;
+        const messageType = req.body.messageType;
         ref.doc(channelId).collection('chats').doc(messageId).get().then((message) => {
           var newMessage = { ...message.data() };
           if(message.data().duration && message.data().duration > 0) {
-            if(newMessage.image) {
-              delete newMessage.image;
+            if (newMessage[`${messageType}`]) {
+              delete newMessage[`${messageType}`]
               newMessage.text = 'This message has been deleted.'
               newMessage.messageType = 'deleted';
               newMessage.duration = 0;
-            } else {
-              newMessage.text = 'This message has been deleted.'
-              newMessage.duration = 0;
-              newMessage.messageType = 'deleted';
             }
           } 
           return ({newMessage, duration: message.data().duration});
@@ -124,5 +128,6 @@ exports.onUserStatusChanged = functions.database.ref('/status/{uid}').onUpdate(
           res.json({ error: 'There was an error.', e: e.toString() });
         })
     })
+    
 ```
 ## Make sure you have delpoyed your cloud function!
