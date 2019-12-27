@@ -1,6 +1,7 @@
 import React from 'react';
 import {View, Text, TouchableOpacity, Image} from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import Entypo from 'react-native-vector-icons/Entypo';
 
 const BackButton = props => (
     <TouchableOpacity
@@ -16,12 +17,24 @@ const Center = props => (
     <View style={{ flexDirection: 'row', paddingBottom: 10 }}>
         <Image 
             resizeMode="cover"
-            style={{ width: 40, height: 40, borderRadius: 20 }}
+            style={{ width: 30, height: 30, borderRadius: 15 }}
             source={{ uri: props.uri }}
         />
         <View style={{ justifyContent: 'center', marginLeft: 10 }}>
             <Text
-             style={{ fontFamily: 'RobotoMono-Regular', color: 'white' }}>{props.name}</Text>
+             style={{ fontFamily: 'RobotoMono-Regular', color: 'white' }}>{props.name}
+             </Text>
+            {props.isPrivate ?
+             <View style={{ flexDirection: 'row', }}>
+                <View style={{ marginLeft: -6  }}>
+                    <Entypo name="dot-single" color={ props.status == 'online' ? 'green' : 'red' } size={20} />
+                </View>
+                <View style={{ justifyContent: 'center' }}>
+                    <Text style={{ color: 'grey', fontSize: 11, letterSpacing: 0.8}}>
+                            {props.status === 'online' ? 'Online' : 'Offline'}
+                    </Text>
+                </View>
+            </View> : null}
         </View>
     </View>
 )

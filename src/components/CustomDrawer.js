@@ -54,7 +54,7 @@ class CustomDrawer extends React.Component {
 
     render() {
         return (
-            <LinearGradient colors={['#868f96', '#596164']} style={{ flex: 1 }}>
+            <LinearGradient locations={[1, 0]} colors={['#363940', '#363940']} style={{ flex: 1 }}>
                 <View style={styles.header}>
                   <DrawerProfile
                         onPress={this.handlePress}

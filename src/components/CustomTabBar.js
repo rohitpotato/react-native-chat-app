@@ -42,12 +42,17 @@ class CustomTabBar extends React.Component {
     return <View style={[styles.tabs, this.props.style, ]}>
       {this.props.tabs.map((tab, i) => {
         return <TouchableOpacity key={tab} onPress={() => this.props.goToPage(i)} style={styles.tab}>
-          <Icon
+          <Text
+             ref={(icon) => { this.icons[i] = icon; }} 
+             style={[ { fontFamily: 'RobotoMono-Regular', color:  this.props.activeTab ? 'white' : 'grey'  } ]} >
+            {tab}
+          </Text>
+          {/* <Icon
             name={tab}
             size={30}
             color={this.props.activeTab === i ? 'rgb(59,89,152)' : 'rgb(204,204,204)'}
             ref={(icon) => { this.icons[i] = icon; }}
-          />
+          /> */}
         </TouchableOpacity>;
       })}
     </View>;

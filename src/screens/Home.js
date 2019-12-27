@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, FlatList, ScrollView } from 'react-native';
+import { View, Text, FlatList, ScrollView, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {connect} from 'react-redux';
 import firebase from '@react-native-firebase/app';
@@ -8,9 +8,10 @@ import firedatabase from '@react-native-firebase/database';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { TabView, SceneMap } from 'react-native-tab-view';
+import { Header, SearchBar } from 'react-native-elements';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 
-import Header from '../components/Header';
+// import Header from '../components/Header';
 import UserList from '../components/UserList';
 import GroupList from '../components/GroupList';
 import CustomTabBar from '../components/CustomTabBar';
@@ -23,15 +24,14 @@ class Home extends React.Component {
     statusRef: firestore().collection('status'),
     channelRef: firestore().collection('channels'),
     index: 0, 
-    routes: [
-      {
-        key: 'Channels', title: 'Channels',
-
-      },
-      {
-        key: 'Users', title: 'Users'
-      }
-    ]
+    searchActive: false,
+    searchMode: 'users',
+    searchQuery: '',
+    tabs: {
+      0: 'users',
+      1: 'channels'
+    },
+    results: [],
     //userDatabaseRef: firebase().ref('users')
   }
 
@@ -42,7 +42,7 @@ class Home extends React.Component {
   componentDidMount() {
       this.getChannels();
       this.getAllUsers();
-      // this.markOnlineStatus();
+      this.markOnlineStatus();
       // this.getOnlineStatusForUsers();
   }
   
@@ -198,7 +198,7 @@ class Home extends React.Component {
     //console.log(this.onlineForUsersSub)
     this.getUsers();
     this.getAllChannels();
-    //firebase.database().ref('.info/connected').off();
+    firebase.database().ref('.info/connected').off();
     //this.onlineForUsersSub();
   }
 
@@ -220,33 +220,87 @@ class Home extends React.Component {
         channel={item}
       />
     )
+  } 
+
+  onSearchClick = () => {
+    this.setState({ searchActive: true });
+  }
+
+  onSearchChange = (mode, text) => {
+    this.setState({ searchQuery: text }, () => {
+      let results = [];
+      let items = [...this.state[mode]];
+      const regex = new RegExp(text, 'gi');
+      results = items.reduce((acc, item) => {
+        if(item.name.match(regex)) {
+          acc.push(item);
+        }
+        return acc;
+      }, [])
+      this.setState({ results });
+    })
   }
 
   render() {
     const {styles:redux, dimensions} = this.props.global;
-    const {users, channels} = this.state;
+    const {users, channels, searchActive, searchMode, searchQuery, tabs, results} = this.state;
+
     return (
     <LinearGradient colors={redux.container.colors} style={{...redux.container}}>
-        <Header 
-          // leftIcon={true}
-        />
-
+      
+      {!searchActive ?  
+        <Header
+          containerStyle={{ backgroundColor: 'transparent', borderBottomColor: 'transparent', height: dimensions.height * 0.09, marginBottom: dimensions.height*0.02 }} 
+          leftComponent={{ icon: 'menu', color: '#fff' }}
+          leftContainerStyle={{ justifyContent: 'center' }}
+          rightComponent={ 
+              <TouchableOpacity 
+                onPress={() => this.setState({ searchActive: true })}
+              > 
+                <MaterialIcons name="search" size={25} color="white"/>  
+              </TouchableOpacity> 
+                }
+          centerComponent={ <Text style={{ fontFamily: 'RobotoMono-Medium', color: 'white', fontSize: 20 }}>Temp Chat</Text> }
+        /> : 
+        <View style={{ flexDirection: 'row', }}>
+            <SearchBar
+              containerStyle={{ backgroundColor: 'transparent', borderBottomWidth: 0, flex: 0.8 }}
+              // inputContainerStyle={{ borderRadius: 50 }}
+              inputStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 13 }}
+              placeholder="Enter Text.."
+              onChangeText={(text) => { this.onSearchChange(searchMode, text) }}
+              value={searchQuery}
+              showCancel
+              round
+              autoFocus
+              showLoading
+          />
+         <TouchableOpacity 
+            style={{ flex: 0.2, alignSelf: 'center', paddingLEf: 10 }}
+            onPress={() => this.setState({ searchActive: false })}
+          >
+          <Text style={{ fontSize: 11, color: 'white', }}>CANCEL</Text>
+         </TouchableOpacity>
+        </View>
+      }
 
       <ScrollableTabView
         initialPage={1}  
         renderTabBar={()=> <CustomTabBar />} 
+        onChangeTab={(tab) => this.setState({ searchMode: tabs[tab.i], results: [], searchActive: false, searchQuery: '' }) }
       >
-        <View tabLabel="md-contact">
+        <View 
+        tabLabel="PEOPLE">
             <FlatList 
-                data={users}
+                data={results.length ? results : users}
                 extraData={this.state}
                 renderItem={this.renderUsers}
                 keyExtractor={this.keyExtractor}
             />
         </View>
-        <View tabLabel="md-contacts">
+        <View tabLabel="CHANNELS">
             <FlatList 
-                data={channels}
+                data={results.length ? results : channels}
                 extraData={this.state}
                 renderItem={this.renderChannels}
                 keyExtractor={this.keyExtractorChannel}
