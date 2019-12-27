@@ -1,13 +1,12 @@
 import React from 'react'
 import { View, Text, TouchableOpacity, Image } from 'react-native';
 import { withNavigation } from 'react-navigation';
-import { GiftedChat, } from 'react-native-gifted-chat';
+import { GiftedChat, InputToolbar, MessageText, MessageImage} from 'react-native-gifted-chat';
 import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 
 import { Header } from 'react-native-elements';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import Entypo from 'react-native-vector-icons/Entypo';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { BackButton, Center, RightChatIcon } from '../../components/HeaderComponents';
@@ -39,7 +38,9 @@ class ChatWindow extends React.Component {
     random_gifs: [],
     search_results: [], 
     timer_duration: 0,
-    error: ''
+    error: '',
+    statusRef: firebase.firestore().collection('status'),
+    currentUserStatus: 'offline',
   }
 
   static navigationOptions = {
@@ -48,6 +49,19 @@ class ChatWindow extends React.Component {
 
   componentDidMount() {
     this.getChat();
+    this.getUserStatus();
+  }
+
+  getUserStatus = () => {
+    if(this.props.channel.isPrivate) {
+      let uid = this.props.channel.currentChannel.uid;
+      console.log(uid);
+      this.state.statusRef.doc(uid).get().then(snapshot => {
+        this.setState({ currentUserStatus: snapshot.state });
+      }).catch(e => {
+        console.log(e)
+      })
+    }
   }
 
   getGifs = async () => {
@@ -117,7 +131,7 @@ class ChatWindow extends React.Component {
     const newMessageObject = {
       // text: messages[0].text,
       createdAt: Date.now(),
-      messageType: 'text',
+      messageType: mode,
       duration: this.state.timer_duration,
       user: {
         _id: this.props.auth.user.uid,
@@ -126,27 +140,42 @@ class ChatWindow extends React.Component {
       }
     };
 
-    if(this.state.selected_gif) {
-      newMessageObject.messageType = 'image'
+    if (mode == 'image') {
       newMessageObject.image = this.state.selected_gif;
-    } else if (this.state.location) {
-      newMessageObject.messageType = 'location'
-      newMessageObject.location = this.state.location;
-    } else {
-      newMessageObject.text = data;
+      return newMessageObject;
     }
+
+    if(mode == 'location') {
+      newMessageObject.location = {...this.state.location};
+      return newMessageObject;
+    }
+
+    if(mode == 'text') {
+      newMessageObject.text = data;
+      return newMessageObject;
+    }
+
+    // if(this.state.selected_gif) {
+    //   newMessageObject.messageType = 'image'
+    //   newMessageObject.image = this.state.selected_gif;
+    // } else if (this.state.location) {
+    //   newMessageObject.messageType = 'location'
+    //   newMessageObject.location = this.state.location;
+    // } else {
+    //   newMessageObject.text = data;
+    // }
 
     return newMessageObject;
   }
 
-  onSend(messages = []) {
+  onSend(messages = [], mode = 'text') {
     const { privateMessagesRef, messagesRef } = this.state;
     const ref = this.props.channel.isPrivate ? privateMessagesRef : messagesRef;
     const uid = this.getChannelId();
 
     let newMessageObject = {};  
 
-    newMessageObject = this.createMessage(messages[0] ? messages[0].text : null);
+    newMessageObject = this.createMessage(messages[0] ? messages[0].text : null, mode);
     this.setState(previousState => ({
       messages: GiftedChat.append(previousState.messages, messages),
     }), () => {   
@@ -177,13 +206,13 @@ class ChatWindow extends React.Component {
     return (
         <View style={{ flexDirection: 'row', justifyContent: 'center', margin: 4}}>
         <TouchableOpacity style={{ paddingLeft: 3 }} onPress={this.toggleGifModal}>
-            <MaterialIcons name="gif" color="black" size={32} />
+            <MaterialIcons name="gif" color="white" size={32} />
         </TouchableOpacity>
-        <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.sendLocation}>
-            <FontAwesome name="location-arrow" color="black" size={26} />
+        <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={() => this.sendLocation('location')}>
+            <FontAwesome name="location-arrow" color="white" size={22} />
         </TouchableOpacity>
         <TouchableOpacity style={{ paddingLeft: 3, justifyContent: 'center' }} onPress={this.toggleTimerModal} >
-            <EvilIcons name="clock" size={32} color="black"/>
+            <EvilIcons name="clock" size={26} color="white"/>
         </TouchableOpacity>
       </View>
     )
@@ -220,7 +249,7 @@ class ChatWindow extends React.Component {
 
   onSelectGif = (gif_url) => {
     this.setState({ selected_gif: gif_url, gif_modal_visible: false }, () => {
-      this.onSend();
+      this.onSend([], 'image');
     });
   }
 
@@ -236,13 +265,17 @@ class ChatWindow extends React.Component {
     return <MessageComponent {...props}/>
   }
 
-  sendLocation = () => {
+  sendLocation = (mode) => {
     Geolocation.getCurrentPosition(info => {
       this.setState({ location: info.coords }, () => {
-        this.onSend();
+        this.onSend([], mode);
       });
     })
   }
+
+  renderInputToolbar = (props) => (
+    <InputToolbar {...props} containerStyle={{ borderRadius: 15, backgroundColor: '#3B3E46', borderTopColor: 'transparent', margin: 10 }} />
+  )
 
 componentWillUnmount() {
     // if(this.abortController.signal) {
@@ -259,9 +292,16 @@ componentWillUnmount() {
     return (
     <LinearGradient locations={[1, 0]} colors={styles.container.colors} style={styles.container}>
       <Header
-        containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#d3d3d3', elevation: 1 }}
+        containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#363940', elevation: 1 }}
         leftComponent={ <BackButton onBackPress={this.onBackPress} /> }
-        centerComponent={ <Center uri={currentChannel.iconUrl ? currentChannel.iconUrl : currentChannel.avatar} name={currentChannel.name} /> }
+        centerComponent={ 
+            <Center 
+              uri={currentChannel.iconUrl ? currentChannel.iconUrl : currentChannel.avatar} 
+              name={currentChannel.name} 
+              status={this.state.currentUserStatus}
+              isPrivate={this.props.channel.isPrivate}
+            /> 
+          }
         placement="left"
         rightComponent={ <RightChatIcon /> }
       />
@@ -270,6 +310,7 @@ componentWillUnmount() {
             onSend={messages => this.onSend(messages)}
             renderActions={this.renderChatActions}
             renderMessage={this.renderMessage}
+            renderInputToolbar={this.renderInputToolbar}
             user={{
               _id: this.props.auth.user.uid,
               name: this.props.auth.user.name,

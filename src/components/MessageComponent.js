@@ -10,7 +10,34 @@ import MessageBubble from './MessageBubble';
 
 const { isSameUser, isSameDay } = utils;
 
-export default class MessageComponent extends React.PureComponent {
+export default class MessageComponent extends React.Component {
+
+  shouldComponentUpdate(nextProps) {
+    const next = nextProps.currentMessage
+    const current = this.props.currentMessage
+    const { previousMessage, nextMessage } = this.props
+    const nextPropsMessage = nextProps.nextMessage
+    const nextPropsPreviousMessage = nextProps.previousMessage
+
+    const shouldUpdate =
+      (this.props.shouldUpdateMessage &&
+        this.props.shouldUpdateMessage(this.props, nextProps)) ||
+      false
+
+    return (
+      next.sent !== current.sent ||
+      next.received !== current.received ||
+      next.pending !== current.pending ||
+      next.createdAt !== current.createdAt ||
+      next.text !== current.text ||
+      next.image !== current.image ||
+      next.video !== current.video ||
+      next.audio !== current.audio ||
+      previousMessage !== nextPropsPreviousMessage ||
+      nextMessage !== nextPropsMessage ||
+      shouldUpdate
+    )
+  }
 
   getInnerComponentProps() {
     const { containerStyle, ...props } = this.props;
