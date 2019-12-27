@@ -10,21 +10,23 @@ A react native chat application built using firebase, firebase cloud functions a
 3. Share Gifs.
 4. MarkDown Support.
 5. Location Sharing
+6. Users and Channel Search.
 
 ## TODO
 1. Ios Support.
 2. <del>Implement Private Chat.<del>
 3. <del>Location Sharing<del>
 4. <del>Markdown Support<del>
-5. User Search.
+5. <del>User Search.<del>
 6. UI Improvements.
 7. Information modals for groups and user info.
 8. Send Images.
 9. Optimization and Refactor.
+10. Push Notifications
 
 # Installation
 1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.
-2. `yarn add` to install all dependencies.
+2. `yarn install` to install all dependencies.
 3. **[Initialize a firebase cloud function project](https://firebase.google.com/docs/functions/get-started).**
 4. Download your admin sdk key file from *`https://console.firebase.google.com/u/0/project/YOUR_PROJECT_ID/settings/serviceaccounts/adminsdk`* and paste it inside the `functions` directory.
 
