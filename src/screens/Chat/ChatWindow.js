@@ -32,6 +32,7 @@ class ChatWindow extends React.Component {
     timer_modal_visible: false,
     messagesRef: firebase.firestore().collection('messages'),
     privateMessagesRef: firebase.firestore().collection('privateMessages'),
+    unreadMessagesRef: firebase.firestore().collection('unreadMessages'),
     location: null,
     gifQuery: '',
     selected_gif: '',
@@ -49,36 +50,51 @@ class ChatWindow extends React.Component {
 
   componentDidMount() {
     this.getChat();
+    this.setUserLastTimeStamp();              // Method to set user's last visit to this chat window.
     this.getUserStatus();
+  }
+
+  setUserLastTimeStamp = () => {
+    this.state.unreadMessagesRef.doc(this.props.auth.user.uid).set({
+      [this.props.channel.currentChannel.uid]: {
+        last_visit: Date.now(),
+        count: 0
+      }
+    }, { merge: true })
+    .catch(e => {
+      console.log('Something went wrong');
+    })
+  }
+
+   // Update the end-user's unseen message count when they recieve a message for this particular thread.
+   // Receives 2 parameters, value corresponds to the unseen message count of the end-user, incremented at every message they receive.
+   // Reset CURRENT user's when the exit the chat window.
+   // Mode corresponds to whose count to reset.
+
+  updateEndUserCount = (value=null, mode) => {                     
+    let prop = mode == 'end-user' ? this.props.auth.user.uid : this.props.channel.currentChannel.uid;
+    if(this.props.channel.isPrivate) {
+      this.state.unreadMessagesRef.doc(this.props.channel.currentChannel.uid).set({
+        [prop]: {
+          count: value ? value - 1 : firebase.firestore.FieldValue.increment(1),
+        }
+      }, { merge: true })
+      .catch(e => {
+        console.log('Something went wrong');
+      })
+    }
   }
 
   getUserStatus = () => {
     if(this.props.channel.isPrivate) {
       let uid = this.props.channel.currentChannel.uid;
-      console.log(uid);
-      this.state.statusRef.doc(uid).get().then(snapshot => {
-        this.setState({ currentUserStatus: snapshot.state });
+     this.state.statusRef.doc(uid).get().then(snapshot => {
+       console.log(snapshot, 'inside user status')
+        this.setState({ currentUserStatus: snapshot.data().state });
       }).catch(e => {
         console.log(e)
       })
     }
-  }
-
-  getGifs = async () => {
-    try { 
-      let gifs = await fetch(`http://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}`);
-      gifs = await gifs.json();
-      gifs = gifs.data.map((gif) => {
-        return {
-          id: gif.id,
-          preview_url: gif.images.preview_gif.url,
-          full_url: gif.url
-        }
-      })
-      this.setState({ random_gifs: gifs });
-    } catch(e) {
-      console.log(e);
-    } 
   }
 
   onBackPress = () => {
@@ -129,7 +145,6 @@ class ChatWindow extends React.Component {
 
   createMessage = (data = null, mode) => {
     const newMessageObject = {
-      // text: messages[0].text,
       createdAt: Date.now(),
       messageType: mode,
       duration: this.state.timer_duration,
@@ -155,16 +170,6 @@ class ChatWindow extends React.Component {
       return newMessageObject;
     }
 
-    // if(this.state.selected_gif) {
-    //   newMessageObject.messageType = 'image'
-    //   newMessageObject.image = this.state.selected_gif;
-    // } else if (this.state.location) {
-    //   newMessageObject.messageType = 'location'
-    //   newMessageObject.location = this.state.location;
-    // } else {
-    //   newMessageObject.text = data;
-    // }
-
     return newMessageObject;
   }
 
@@ -186,6 +191,7 @@ class ChatWindow extends React.Component {
         if(this.state.location) {
           this.setState({ location: '' });
         }
+         this.updateEndUserCount(null, 'end-user');
         if(newMessageObject.duration && newMessageObject.duration > 0) {
           let channelData = {
             channelId: uid,
@@ -216,6 +222,23 @@ class ChatWindow extends React.Component {
         </TouchableOpacity>
       </View>
     )
+  }
+
+  getGifs = async () => {
+    try { 
+      let gifs = await fetch(`http://api.giphy.com/v1/gifs/trending?api_key=${GIPHY_API_KEY}`);
+      gifs = await gifs.json();
+      gifs = gifs.data.map((gif) => {
+        return {
+          id: gif.id,
+          preview_url: gif.images.preview_gif.url,
+          full_url: gif.url
+        }
+      })
+      this.setState({ random_gifs: gifs });
+    } catch(e) {
+      console.log(e);
+    } 
   }
 
   toggleGifModal = () => {
@@ -277,10 +300,9 @@ class ChatWindow extends React.Component {
     <InputToolbar {...props} containerStyle={{ borderRadius: 15, backgroundColor: '#3B3E46', borderTopColor: 'transparent', margin: 10 }} />
   )
 
+
 componentWillUnmount() {
-    // if(this.abortController.signal) {
-    //   this.abortController.abort();
-    // }
+    this.updateEndUserCount(1); // 1 to bypass the coercion, reseting the current user's count to 0 when they exit this window.
     this.messageListener();
   }
 
@@ -288,7 +310,6 @@ componentWillUnmount() {
     const {styles, dimensions} = this.props.global;
     const {currentChannel} = this.props.channel;
     const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration } = this.state;
-
     return (
     <LinearGradient locations={[1, 0]} colors={styles.container.colors} style={styles.container}>
       <Header

@@ -2,7 +2,7 @@ import React from 'react';
 import {View, Text, StyleSheet, Image, Dimensions, TouchableOpacity} from 'react-native';
 import {connect} from 'react-redux';
 import {withNavigation} from 'react-navigation';
-import { ListItem, TouchableScale } from 'react-native-elements'
+import { ListItem, TouchableScale, Badge } from 'react-native-elements'
 import LinearGradient from 'react-native-linear-gradient';
 import { setChannel, setPrivateChannel } from '../redux/actions/channelActions';
 
@@ -13,7 +13,7 @@ class UserList extends React.Component {
 
     // shouldComponentUpdate(nextProps, nextState) {
     //     console.log(nextProps.user, this.props.user)
-    //     return nextProps.user.last_changed !== this.props.user.last_changed || nextProps.user.status !== this.props.user.status
+    //     return nextProps.unreadCount !== this.props.unreadCount;
     // }
 
     handlePress = () => {
@@ -32,18 +32,25 @@ class UserList extends React.Component {
                 tension={100} // These props are passed to the parent component (here TouchableScale)
                 activeScale={0.95} //
                 containerStyle={{ backgroundColor: 'transparent' }}
+                rightIcon={
+                    this.props.unreadCount && this.props.unreadCount.count ? 
+                    <View style={{ height: 20, width: 20, borderRadius: 10, backgroundColor: '#f80000' }}>
+                        <Text style={{ color: 'white', alignSelf: 'center' }}>{this.props.unreadCount ? this.props.unreadCount.count : null}</Text>
+                    </View> : null
+                }
                 // linearGradientProps={{
                 // colors: ['#FF9800', '#F44336'],
                 // start: [1, 0],
                 // end: [0.2, 0],
                 // }}
-                // ViewComponent={LinearGradient} // Only if no expo
+                // ViewComponent={LinearGradient} // Only if no expos
                 leftAvatar={{ rounded: true, source: { uri: user.avatar } }}
                 title={user.name}
                 titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
                 subtitleStyle={{ color: 'white' }}
-                //subtitle="Vice Chairman"
+                //subtitle={this.props.unreadCount.count}
                 chevron={{ color: 'grey' }}
+                //badge={<Badge status="error" value={this.props.unreadCount.count} />}
             />
         )
     }
