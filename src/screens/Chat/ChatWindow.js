@@ -73,8 +73,9 @@ class ChatWindow extends React.Component {
 
   updateEndUserCount = (value=null, mode) => {                     
     let prop = mode == 'end-user' ? this.props.auth.user.uid : this.props.channel.currentChannel.uid;
+    let userDoc = mode == 'end-user' ? this.props.channel.currentChannel.uid : this.props.auth.user.uid;
     if(this.props.channel.isPrivate) {
-      this.state.unreadMessagesRef.doc(this.props.channel.currentChannel.uid).set({
+      this.state.unreadMessagesRef.doc(userDoc).set({
         [prop]: {
           count: value ? value - 1 : firebase.firestore.FieldValue.increment(1),
         }
