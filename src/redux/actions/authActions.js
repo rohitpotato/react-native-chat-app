@@ -20,3 +20,10 @@ export const setProfile = (data) => {
         payload: data
     }
 }
+
+export const clearProfile = () => {
+    return {
+        type: actionTypes.CLEAR_PROFILE,
+        payload: null
+    }
+}

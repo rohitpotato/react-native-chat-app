@@ -101,7 +101,9 @@ class Profile extends React.Component {
              this.props.setProfile({
                  ...this.props.profile, avatar: url
              });
-
+             this.props.setUser({
+                ...this.props.profile, avatar: url
+            });
              this.renderFlashMessage('Upload Successfull!', 'info')
         } catch(e) {
             console.log(e);

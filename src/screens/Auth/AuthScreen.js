@@ -32,7 +32,7 @@ const AuthScreen = (props) => {
                         style={{ height: ScreenHeight, width: ScreenWidth }}
                         imageStyle={{ opacity: 0.5 }}
                     >
-                        <View style={{ marginTop: ScreenHeight*0.15, marginLeft: ScreenHeight*0.05,  }}>
+                        <View style={{ marginTop: ScreenHeight*0.25, marginLeft: ScreenHeight*0.05,  }}>
                             <Text style={{ color: 'white', fontFamily: 'RobotoMono-Bold', fontSize: 50, }}>TEMP-CHAT</Text>
                         </View>
                         <View style={{ marginTop: ScreenHeight*0.06, marginLeft: ScreenHeight*0.05,  }}>

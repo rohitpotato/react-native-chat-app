@@ -4,7 +4,7 @@ import {connect} from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
 import firebase from '@react-native-firebase/app';
 import {withNavigation} from 'react-navigation';
-import {setUser, clearUser} from '../redux/actions/authActions';
+import {setUser, clearUser, clearProfile} from '../redux/actions/authActions';
 
  class AuthLoading extends React.Component {
 
@@ -23,6 +23,7 @@ import {setUser, clearUser} from '../redux/actions/authActions';
                 this.props.navigation.navigate('Drawer')
             } else {
                 this.props.clearUser();
+                this.props.clearProfile();
                 this.props.navigation.navigate('AuthStack')
             }
         })
@@ -83,4 +84,4 @@ const mapStateToProps = state => ({
     global: state.global
 })
 
-export default withNavigation(connect(mapStateToProps, { setUser, clearUser })(AuthLoading));
+export default withNavigation(connect(mapStateToProps, { setUser, clearUser, clearProfile })(AuthLoading));

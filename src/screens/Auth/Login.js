@@ -94,7 +94,7 @@ class Login extends React.Component {
                >
                <View style={{...styles.headerContainer, marginTop: dimensions.height*0.05, alignItems: 'center'}}>
                    <Text style={styles.headerTextStyle}>
-                      Sign in to beign your experience.
+                      Sign in to begin your experience.
                    </Text>
                </View>
                <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: dimensions.height*0.05, marginBottom: dimensions.height*0.02}}>
