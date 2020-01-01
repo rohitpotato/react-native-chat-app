@@ -1,7 +1,7 @@
 import * as actionTypes from '../actions/types';
 
 const initialState = {
-    user: null
+    user: null,
 }
 
 export default authReducer = (state = initialState, action) => {

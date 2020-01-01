@@ -67,7 +67,10 @@ const DrawerNavigator = createDrawerNavigator(
 const AuthStack = createStackNavigator(
     {
         AuthScreen: {
-            screen: AuthScreen
+            screen: AuthScreen,
+            navigationOptions: {
+                header: null
+            }
         },
         Login: {
             screen: Login

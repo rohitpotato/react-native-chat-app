@@ -54,20 +54,6 @@ class AddChannel extends React.Component {
         header: null
     }
 
-    componentDidMount() {
-        this.getChannels();
-    }
-
-    getChannels = () => {
-        this.getAllChannels = this.state.channelRef.onSnapshot(querySnapShot => {
-            let allChannels = [];
-            querySnapShot.forEach((query) => {
-                allChannels.push(query.data());
-            })
-            this.setState({ channels: allChannels.slice(0, 4) });
-        })
-    }   
-
     handleChange = (field, value) => {
         this.setState({ [field]: value })
     }
@@ -107,11 +93,8 @@ class AddChannel extends React.Component {
                     console.log(channel);
                     this.renderError('This channel already exists.');
                 } else {
-    
-                    //TODO
-                  
+
                     if(this.state.channelImage.uri) {
-    
                         const ext = this.state.channelImage.uri.split('.').pop(); // Extract image extension
                         const filename = `channel/icon/${uuid()}.${ext}`; // Generate unique name
 
@@ -146,11 +129,11 @@ class AddChannel extends React.Component {
     addChannel_ = (newChannel) => {
         this.state.channelRef.add(newChannel).then(() => {
             this.setState({ channel: '', channelAbout: '', channelImage: '', loading: false })
-            // showMessage({
-            //     message: 'Yay!',
-            //     description: 'Channel Added.',
-            //     type: 'success'
-            // })
+            showMessage({
+                message: 'Yay!',
+                description: 'Channel Added.',
+                type: 'success'
+            })
             console.log('added Channel')
         }).catch(e => {
             console.log(e);
@@ -168,23 +151,10 @@ class AddChannel extends React.Component {
         })
     }
 
-    keyExtractor = (item) => `${item.name}`;
-
-    renderItem = ({ item }) => {
-        return (
-            <View>
-                <Text style={{ color: 'white', fontFamily: 'RobotoMono-Regular' }}>{ item.name }</Text>
-            </View>
-        )
-    }
-
     componentWillUnmount() {
        if(this.uploadSub) {
-            console.log(this.uploadSub);
-            this.uploadSub();
-            // this.state.storageRef(this.state.).
+        this.uploadSub();
        }
-        this.getAllChannels();
     }
 
     render() {

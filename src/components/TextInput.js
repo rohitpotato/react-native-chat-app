@@ -19,13 +19,13 @@ const CustomTextInput = props => {
             {props.clear && props.value.length>0 &&
             <View style={{ justifyContent: 'center', padding: 10 }}>
                 <TouchableOpacity onPress={props.handleClear}>
-                    {props.clearIcon ? props.clearIcon() : <MaterialIcons name="clear" size={20} />}
+                    {props.clearIcon ? props.clearIcon() : <MaterialIcons color="white" name="clear" size={18} />}
                 </TouchableOpacity>
             </View>}
             {props.show && props.value.length>0 &&
             <View style={{ justifyContent: 'center', padding: 10 }}>
                 <TouchableOpacity onPress={props.handleShowPassword}>
-                    {props.showPasswordIcon ? props.showPasswordIcon() : <MaterialIcons name="remove-red-eye" size={20} />}
+                    {props.showPasswordIcon ? props.showPasswordIcon() : <MaterialIcons name="remove-red-eye" color="white" size={18} />}
                 </TouchableOpacity>
             </View>}
         </View>

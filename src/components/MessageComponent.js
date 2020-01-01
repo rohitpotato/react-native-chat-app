@@ -7,10 +7,13 @@ import {
 
 import { Avatar, Day, utils } from 'react-native-gifted-chat';
 import MessageBubble from './MessageBubble';
+import { withNavigation } from 'react-navigation';
+import { connect } from 'react-redux';
+import { setProfile } from '../redux/actions/authActions';
 
 const { isSameUser, isSameDay } = utils;
 
-export default class MessageComponent extends React.Component {
+class MessageComponent extends React.Component {
 
   shouldComponentUpdate(nextProps) {
     const next = nextProps.currentMessage
@@ -82,9 +85,19 @@ export default class MessageComponent extends React.Component {
     return (
       <Avatar
         {...avatarProps}
+        onPressAvatar={() => {this.onAvatarPress(this.props.currentMessage.user) }}
         imageStyle={{ left: [styles.slackAvatar, avatarProps.imageStyle, extraStyle] }}
       />
     );
+  }
+
+  onAvatarPress = (user) => {
+    this.props.setProfile({
+      uid: user._id,
+      name: user.name,
+      avatar: user.avatar
+    })
+    this.props.navigation.navigate('Profile');
   }
 
   render() {
@@ -124,6 +137,8 @@ const styles = StyleSheet.create({
     borderRadius: 15,
   },
 });
+
+export default withNavigation(connect(null, { setProfile })(MessageComponent));
 
 // Message.defaultProps = {
 //   renderAvatar: undefined,

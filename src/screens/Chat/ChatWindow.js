@@ -90,7 +90,6 @@ class ChatWindow extends React.Component {
     if(this.props.channel.isPrivate) {
       let uid = this.props.channel.currentChannel.uid;
      this.state.statusRef.doc(uid).get().then(snapshot => {
-       console.log(snapshot, 'inside user status')
         this.setState({ currentUserStatus: snapshot.data().state });
       }).catch(e => {
         console.log(e)
@@ -252,6 +251,8 @@ class ChatWindow extends React.Component {
   }
 
   onGifQueryChange = (text) => {
+    //TODO: Implement debouncing
+
     this.setState({ gifQuery: text }, async() => {
         try {
 
@@ -298,7 +299,7 @@ class ChatWindow extends React.Component {
   }
 
   renderInputToolbar = (props) => (
-    <InputToolbar {...props} containerStyle={{ borderRadius: 15, backgroundColor: '#3B3E46', borderTopColor: 'transparent', margin: 10 }} />
+    <InputToolbar {...props} containerStyle={{ borderRadius: 15, backgroundColor: '#3B3E46', borderTopColor: 'transparent' }} />
   )
 
 
@@ -312,7 +313,7 @@ componentWillUnmount() {
     const {currentChannel} = this.props.channel;
     const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration } = this.state;
     return (
-    <LinearGradient locations={[1, 0]} colors={styles.container.colors} style={styles.container}>
+    <LinearGradient  colors={['#000000', '#414141']} style={styles.container}>
       <Header
         containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#363940', elevation: 1 }}
         leftComponent={ <BackButton onBackPress={this.onBackPress} /> }

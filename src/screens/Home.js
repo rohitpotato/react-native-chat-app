@@ -175,7 +175,7 @@ class Home extends React.Component {
     const {styles:redux, dimensions} = this.props.global;
     const {users, channels, searchActive, searchMode, searchQuery, tabs, results} = this.state;
     return (
-    <LinearGradient colors={redux.container.colors} style={{...redux.container}}>
+    <LinearGradient colors={['#000000', '#414141']} style={{...redux.container,}} >
       
       {!searchActive ?  
         <Header
@@ -202,7 +202,7 @@ class Home extends React.Component {
               showCancel
               round
               autoFocus
-              showLoading
+              // showLoading
           />
          <TouchableOpacity 
             style={{ flex: 0.2, alignSelf: 'center', paddingLEf: 10 }}

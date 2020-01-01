@@ -13,3 +13,10 @@ export const clearUser = () => {
         payload: null
     }
 }
+
+export const setProfile = (data) => {
+    return {
+        type: actionTypes.SET_PROFILE,
+        payload: data
+    }
+}

@@ -1,5 +1,5 @@
 import React from 'react';
-import {View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Dimensions, Modal} from 'react-native';
+import {View, StyleSheet, Text, TouchableOpacity, ActivityIndicator, Dimensions, Modal, ImageBackground} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {withNavigation} from 'react-navigation';
 import { DrawerItems } from 'react-navigation-drawer'
@@ -8,7 +8,7 @@ import firebase from '@react-native-firebase/app';
 import firestore from '@react-native-firebase/firestore';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
-import {clearUser} from '../redux/actions/authActions';
+import {clearUser, setProfile} from '../redux/actions/authActions';
 
 import DrawerProfile from './DrawerProfile'
 
@@ -23,20 +23,6 @@ class CustomDrawer extends React.Component {
         addGroupModal: false,
         uid: firebase.auth().currentUser.uid
     };
-
-    componentDidMount() {
-        //this.getChannels();
-    }
-
-    // getChannels = () => {
-    //     this.getAllChannels = this.state.channelRef.onSnapshot(querySnapShot => {
-    //         let allChannels = [];
-    //         querySnapShot.forEach((query) => {
-    //             allChannels.push(query);
-    //         })
-    //         this.setState({ channels: allChannels.slice(0, 4) });
-    //     })
-    // }
 
     handlePress = () => { 
        this.setState({ loading: true }, async () => {
@@ -55,29 +41,59 @@ class CustomDrawer extends React.Component {
     render() {
         return (
             <LinearGradient locations={[1, 0]} colors={['#363940', '#363940']} style={{ flex: 1 }}>
-                <View style={styles.header}>
-                  <DrawerProfile
-                        onPress={this.handlePress}
-                        loading={this.state.loading} 
-                    /> 
-                </View>
-                <View style={styles.groupHeader}>
-                   <View style={{ marginLeft: ScreenWidth*0.05, flex: 1 }}> 
-                       <Text style={{ fontFamily: 'RobotoMono-Regular', fontSize: 18 }}>GROUPS</Text>
-                   </View>
-                    <TouchableOpacity style={styles.groupAdd}
-                        onPress={() => this.props.navigation.navigate('Channel')}
-                    >
-                        <MaterialIcons name="group-add" size={25} color="black"/>
-                    </TouchableOpacity>
-                </View>
-                <View styles={this.props.styles}>
-                    <DrawerItems 
-                        activeBackgroundColor="black"
-                        activeTintColor="white"
-                        {...this.props}
-                    />
-                </View>
+                <ImageBackground
+                    source={require('../../assets/batman2.jpeg')}
+                    resizeMode="cover"
+                    style={{ height: ScreenHeight }}
+                    imageStyle={{ opacity: 0.5 }}
+                >
+                    <View style={styles.header}>
+                        <DrawerProfile
+                            onPress={this.handlePress}
+                            loading={this.state.loading} 
+                        /> 
+                    </View>
+                    <View style={styles.groupHeader}>
+                    <View style={{ marginLeft: ScreenWidth*0.05, flex: 1 }}> 
+                        <Text style={{ fontFamily: 'RobotoMono-Regular', fontSize: 18, color: 'white' }}>GROUPS</Text>
+                    </View>
+                        <TouchableOpacity style={styles.groupAdd}
+                            onPress={() => this.props.navigation.navigate('Channel')}
+                        >
+                            <MaterialIcons name="group-add" size={25} color="white"/>
+                        </TouchableOpacity>
+                    </View>
+                    <View styles={{...this.props.styles, marginTop: ScreenHeight*0.1}}>
+                       <View style={{ marginLeft: ScreenWidth*0.05, marginBottom: ScreenHeight*0.03 }}>
+                           <TouchableOpacity
+                                onPress={() => this.props.navigation.navigate('Home')}
+                           >
+                               <Text style={{ color: 'white', fontWeight: 'bold' }}>Home</Text>
+                           </TouchableOpacity>
+                       </View>
+                       <View style={{ marginLeft: ScreenWidth*0.05, marginBottom: ScreenHeight*0.03 }}>
+                           <TouchableOpacity
+                                onPress={() => {
+                                    this.props.setProfile({
+                                        uid: this.props.auth.user.uid,
+                                        name: this.props.auth.user.name,
+                                        avatar: this.props.auth.user.avatar
+                                      });
+                                      this.props.navigation.navigate('Profile');
+                                }}
+                           >
+                               <Text style={{ color: 'white', fontWeight: 'bold' }}>Profile</Text>
+                           </TouchableOpacity>
+                       </View>
+                       <View style={{ marginLeft: ScreenWidth*0.05, marginBottom: ScreenHeight*0.03 }}>
+                           <TouchableOpacity
+                                onPress={() => this.props.navigation.navigate('Settings')}
+                           >
+                               <Text style={{ color: 'white', fontWeight: 'bold' }}>Settings</Text>
+                           </TouchableOpacity>
+                       </View>
+                    </View>
+                </ImageBackground>
             </LinearGradient>
         )
     }
@@ -108,4 +124,4 @@ const mapStateToProps = state => ({
     styles: state.global.styles
 })
 
-export default withNavigation(connect(mapStateToProps, { clearUser })(CustomDrawer));
+export default withNavigation(connect(mapStateToProps, { clearUser, setProfile })(CustomDrawer));

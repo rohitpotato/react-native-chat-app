@@ -12,7 +12,7 @@ const TimerModal = ({timer_duration, onDurationSelect}) => {
     return (
         <View style={{ backgroundColor: 'white', height: ScreenHeight*0.5, borderTopLeftRadius: 17, borderTopRightRadius: 17 }}>
             <View style={{ alignItems: 'center', justifyContent: 'center', margin: 15 }}>
-                <Text style={{ textAlign: 'center', fontFamily: 'RobotoMono-Bold' }}>Select a Duration after which your messages will disappear.</Text>
+                <Text style={{ textAlign: 'center', fontFamily: 'RobotoMono-Bold' }}>Select a Duration (in seconds) after which your messages will disappear.</Text>
             </View>
             <ScrollView>
             {

@@ -19,7 +19,7 @@ const ProfileDrawer = props => {
                     <TouchableOpacity
                         onPress={props.onPress}
                     >
-                       {props.loading ? <ActivityIndicator size="small" color="blue" animating/> : <Text style={{fontFamily: 'RobotoMono-Regular'}}>Sign Out</Text>}
+                       {props.loading ? <ActivityIndicator size="small" color="blue" animating/> : <Text style={{ color: 'white'}}>SIGN OUT</Text>}
                     </TouchableOpacity>
                 </View>
             </View>
@@ -37,8 +37,10 @@ const styles = StyleSheet.create({
         marginLeft: ScreenWidth*0.03
     },  
     name: {
-        fontFamily: 'RobotoMono-Bold',
-        letterSpacing: 1.5
+        fontWeight: 'bold',
+        fontSize: 20,
+        letterSpacing: 1.25,
+        color: 'white'
     }
 })
 

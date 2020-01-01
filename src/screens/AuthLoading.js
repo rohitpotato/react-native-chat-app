@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Text, ActivityIndicator, StyleSheet, Image } from 'react-native';
+import { View, Text, ActivityIndicator, StyleSheet, StatusBar, ImageBackground } from 'react-native';
 import {connect} from 'react-redux';
 import LinearGradient from 'react-native-linear-gradient';
-import store from '../redux/store'
 import firebase from '@react-native-firebase/app';
-//import auth from '@react-native-firebase/auth';
 import {withNavigation} from 'react-navigation';
 import {setUser, clearUser} from '../redux/actions/authActions';
 
@@ -39,7 +37,24 @@ import {setUser, clearUser} from '../redux/actions/authActions';
         const { styles: redux, dimensions } = this.props.global;
         return (
             <LinearGradient colors={redux.container.colors} style={styles.conatiner}>
-                <View>
+                <StatusBar hidden />
+                <ImageBackground
+                    source={require('../../assets/flash4.png')}
+                    resizeMode="cover"
+                    style={{ height: dimensions.height, width: dimensions.width }}
+                    imageStyle={{ opacity: 0.5 }}
+                >
+                <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', flex: 1}}>
+                    <View style={{ }}>
+                        <Text style={{ color: 'white', fontSize: 15, fontFamily: 'RobotoMono-Medium' }}>WE ARE FETCHING YOUR DATA...HOLD ON!</Text>
+                    </View>
+                    <View style={{ }}>
+                        <ActivityIndicator size="small" color="red" />
+                    </View>
+                </View>
+                </ImageBackground>
+
+                {/* <View>
                     <Image 
                         resizeMode="center"
                         style={{ height: dimensions.height/3,  }}
@@ -50,7 +65,7 @@ import {setUser, clearUser} from '../redux/actions/authActions';
                     color="rgb(0,205,0)"
                     size="large"
                 />
-                <Text style={redux.text}>PLEASE WAIT WHILE WE FETCH YOUR DATA...</Text>
+                <Text style={redux.text}>PLEASE WAIT WHILE WE FETCH YOUR DATA...</Text> */}
             </LinearGradient>
         )
     }
