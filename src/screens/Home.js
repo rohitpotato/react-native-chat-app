@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, FlatList, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {connect} from 'react-redux';
 import firebase from '@react-native-firebase/app';
@@ -7,11 +7,9 @@ import firestore from '@react-native-firebase/firestore';
 import firedatabase from '@react-native-firebase/database';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import { TabView, SceneMap } from 'react-native-tab-view';
 import { Header, SearchBar } from 'react-native-elements';
 import ScrollableTabView from 'react-native-scrollable-tab-view';
 
-// import Header from '../components/Header';
 import UserList from '../components/UserList';
 import GroupList from '../components/GroupList';
 import CustomTabBar from '../components/CustomTabBar';
@@ -21,10 +19,15 @@ class Home extends React.Component {
     users: [],
     channels: [],
     unreadObject: {},
+    privateTypingObject: {},
+    channelTypingObject: {},
     userRef: firestore().collection('users'),
     statusRef: firestore().collection('status'),
     channelRef: firestore().collection('channels'),
     unreadMessagesRef: firestore().collection('unreadMessages'),
+    privateTypingRef: firestore().collection('privateTyping'),
+    channelTypingRef: firestore().collection('channelTyping'),
+    // typingListener: firestore().collection('typing'),
     searchActive: false,
     searchMode: 'users',
     searchQuery: '',
@@ -44,7 +47,28 @@ class Home extends React.Component {
       this.getChannels();
       this.getAllUsers();
       this.getUnreadMessageAlert();
+      this.getTypingStatus();
       this.markOnlineStatus();
+  }
+
+  getTypingStatus = () => {
+    this.privateTypingListener = this.state.privateTypingRef.doc(this.props.auth.user.uid).onSnapshot(snap => {
+      if(snap.exists) {
+        this.setState(prevState => ({
+          privateTypingObject: {...prevState.privateTypingObject, ...snap.data()}
+        }))
+      }
+   })
+
+      this.channelTypingListener = this.state.channelTypingRef.onSnapshot(doc => {
+        doc.forEach(d => {
+          if(d.exists) {
+            this.setState(prevState => ({
+              channelTypingObject: {...prevState.channelTypingObject, [d.id]: {...d.data()}}
+            }))
+          }
+        })
+      })
   }
 
   getUnreadMessageAlert = () => {
@@ -128,6 +152,9 @@ class Home extends React.Component {
     this.getUsers();
     this.getAllChannels();
     this.unreadListener();
+    this.privateTypingListener();
+    this.channelTypingListener();
+    // this.typingListener();
     firebase.database().ref('.info/connected').off();
   }
 
@@ -139,6 +166,7 @@ class Home extends React.Component {
     return (
       <UserList 
         user={item}
+        isTyping={this.state.privateTypingObject[item.uid]}
         unreadCount={this.state.unreadObject[item.uid]}
       />
     )
@@ -147,6 +175,7 @@ class Home extends React.Component {
   renderChannels = ({item}) => {
     return (
       <GroupList 
+        isTyping={this.state.channelTypingObject[item.uid]}
         channel={item}
       />
     )

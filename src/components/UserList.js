@@ -11,10 +11,10 @@ const ScreenWidth = Dimensions.get('window').width;
 
 class UserList extends React.Component {
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     console.log(nextProps.user, this.props.user)
-    //     return nextProps.unreadCount !== this.props.unreadCount;
-    // }
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.unreadCount !== this.props.unreadCount || 
+        nextProps.isTyping !== this.props.isTyping;
+    }
 
     handlePress = () => {
         this.props.setChannel(this.props.user);
@@ -24,6 +24,8 @@ class UserList extends React.Component {
 
     render() {
         const { user } = this.props;
+        console.log('FLATLIST USER');
+        // console.log(this.props.isTyping)
         return (
             <ListItem
                 Component={TouchableScale}
@@ -48,7 +50,11 @@ class UserList extends React.Component {
                 title={user.name}
                 titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
                 subtitleStyle={{ color: 'white' }}
-                //subtitle={this.props.unreadCount.count}
+                subtitle={
+                    this.props.isTyping && this.props.isTyping.typing ? 
+                    <Text style={{ color: '#1DB954', fontFamily: 'RototoMono-Regular', fontSize: 10 }}>Typing..</Text>
+                    : null
+                }
                 chevron={{ color: 'grey' }}
                 //badge={<Badge status="error" value={this.props.unreadCount.count} />}
             />

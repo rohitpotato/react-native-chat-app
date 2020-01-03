@@ -12,10 +12,10 @@ const ScreenWidth = Dimensions.get('window').width;
 
 class GroupList extends React.PureComponent {
 
-    // shouldComponentUpdate(nextProps, nextState) {
-    //     console.log(nextProps.user, this.props.user)
-    //     return nextProps.user.last_changed !== this.props.user.last_changed || nextProps.user.status !== this.props.user.status
-    // }
+    shouldComponentUpdate(nextProps, nextState) {
+        return nextProps.unreadCount !== this.props.unreadCount || 
+        nextProps.isTyping !== this.props.isTyping;
+    }
 
     handlePress = () => {
         this.props.setPrivateChannel(false);
@@ -25,6 +25,7 @@ class GroupList extends React.PureComponent {
 
     render() {
         const { channel } = this.props;
+        console.log('FLATLIST CHANNEL');
         return (
                 <ListItem
                     Component={TouchableScale}
@@ -43,7 +44,11 @@ class GroupList extends React.PureComponent {
                     leftAvatar={{ rounded: true, source: { uri: channel.iconUrl } }}
                     title={channel.name}
                     titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
-                    subtitle={channel.about}
+                    subtitle={
+                        this.props.isTyping && this.props.isTyping.typing ? 
+                        <Text style={{ color: '#1DB954', fontFamily: 'RototoMono-Regular', fontSize: 10 }}>Typing..</Text>
+                        : channel.about
+                    }
                     subtitleStyle={{ color: 'grey', fontSize: 12 }}
                     //subtitle="Vice Chairman"
                     chevron={{ color: 'grey' }}

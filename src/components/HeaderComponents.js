@@ -24,17 +24,26 @@ const Center = props => (
             <Text
              style={{ fontFamily: 'RobotoMono-Regular', color: 'white' }}>{props.name}
              </Text>
-            {props.isPrivate ?
-             <View style={{ flexDirection: 'row', }}>
-                <View style={{ marginLeft: -6  }}>
-                    <Entypo name="dot-single" color={ props.status == 'online' ? 'green' : 'red' } size={20} />
-                </View>
+            {
+                props.typing && props.typing.typing ?                     
                 <View style={{ justifyContent: 'center' }}>
-                    <Text style={{ color: 'grey', fontSize: 11, letterSpacing: 0.8}}>
-                            {props.status === 'online' ? 'Online' : 'Offline'}
+                    <Text style={{ color: 'grey', fontSize: 11, letterSpacing: 0.8, fontFamily: 'RobotoMono-Italic'}}>
+                        Typing...
                     </Text>
-                </View>
-            </View> : null}
+                </View> 
+            : 
+                props.isPrivate ?
+                    <View style={{ flexDirection: 'row', }}>
+                    <View style={{ marginLeft: -6  }}>
+                        <Entypo name="dot-single" color={ props.status == 'online' ? 'green' : 'red' } size={20} />
+                    </View>
+                    <View style={{ justifyContent: 'center' }}>
+                        <Text style={{ color: 'grey', fontSize: 11, letterSpacing: 0.8}}>
+                                {props.status === 'online' ? 'Online' : 'Offline'}
+                        </Text>
+                    </View>
+                </View> : null
+            }
         </View>
     </View>
 )

@@ -1,7 +1,7 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard } from 'react-native';
 import { withNavigation } from 'react-navigation';
-import { GiftedChat, InputToolbar, MessageText, MessageImage} from 'react-native-gifted-chat';
+import { GiftedChat, InputToolbar} from 'react-native-gifted-chat';
 import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
 
@@ -19,8 +19,9 @@ import MessageComponent from '../../components/MessageComponent';
 
 import {connect} from 'react-redux';
 import {GIPHY_API_KEY, MESSAGE_REMOVER_CLOUD_URL} from '../../config/constants';
-import firebase, {Query} from '@react-native-firebase/app';
+import firebase from '@react-native-firebase/app';
 import axios from 'axios';
+import { debounce } from '../../helpers'
 
 class ChatWindow extends React.Component {
 
@@ -33,6 +34,8 @@ class ChatWindow extends React.Component {
     messagesRef: firebase.firestore().collection('messages'),
     privateMessagesRef: firebase.firestore().collection('privateMessages'),
     unreadMessagesRef: firebase.firestore().collection('unreadMessages'),
+    channelTypingRef: firebase.firestore().collection('channelTyping'),
+    privateTypingRef: firebase.firestore().collection('privateTyping'),
     location: null,
     gifQuery: '',
     selected_gif: '',
@@ -42,6 +45,7 @@ class ChatWindow extends React.Component {
     error: '',
     statusRef: firebase.firestore().collection('status'),
     currentUserStatus: 'offline',
+    isTyping: null
   }
 
   static navigationOptions = {
@@ -52,6 +56,82 @@ class ChatWindow extends React.Component {
     this.getChat();
     this.setUserLastTimeStamp();              // Method to set user's last visit to this chat window.
     this.getUserStatus();
+
+    //Keyboard listeners 
+    this.keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      this._keyboardDidShow,
+    );
+    this.keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      this._keyboardDidHide,
+    );
+    
+      // Typing Listener
+      this.getTypingStatus();
+  } 
+
+  getTypingStatus = () => {
+    if(this.props.channel.isPrivate) {
+      
+          if(this.channelTypingListener) {
+            this.channelTypingListener();
+          }
+
+          this.privateTypingListener = this.state.privateTypingRef.doc(this.props.auth.user.uid).onSnapshot(doc => {
+            if(doc.exists) {
+              this.setState({ isTyping: doc.data()[this.props.channel.currentChannel.uid] });
+            }
+        })
+    } else {
+     
+      if(this.privateTypingListener) {
+        this.privateTypingListener();
+      }
+
+      this.channelTypingListener = this.state.channelTypingRef.doc(this.props.channel.currentChannel.uid).onSnapshot(doc => {
+        if(doc.exists) {
+          if(doc.data().uid !== this.props.auth.user.uid) {
+            this.setState({ isTyping: doc.data() })
+          }
+        }
+      })
+    }
+  }
+
+  _keyboardDidShow = async () => {
+    this.setTypingStatus(true);
+  }
+
+  _keyboardDidHide = async () => {
+    this.setTypingStatus(false);
+  }
+
+  setTypingStatus = async (status) => {
+    if(this.props.channel.isPrivate) {
+      console.log('here?')
+      try {
+        await this.state.privateTypingRef.doc(this.props.channel.currentChannel.uid).set({
+          [this.props.auth.user.uid] : {
+            typing: status,
+            uid: this.props.auth.user.uid,
+            displayName: this.props.auth.user.name
+          }
+        })
+      } catch(e) {
+        console.log('Something went wrong while updating the typing status. (private)', e);
+      }
+    } else {
+      try {
+        await this.state.channelTypingRef.doc(this.props.channel.currentChannel.uid).set({
+          typing: status,
+          uid: this.props.auth.user.uid,
+          displayName: this.props.auth.user.name
+        })
+      } catch(e) {
+        console.log('Something went wrong while updating the typing status. (public)', e);
+      }
+    }
   }
 
   setUserLastTimeStamp = () => {
@@ -96,6 +176,12 @@ class ChatWindow extends React.Component {
       })
     }
   }
+
+  //Typing Indicator Function
+
+  // onInputTextChanged = () => {
+  //   this.state.typingRef.doc(this.props.channel.currentChannel.uid).
+  // }
 
   onBackPress = () => {
     this.props.navigation.goBack();
@@ -255,7 +341,7 @@ class ChatWindow extends React.Component {
 
     this.setState({ gifQuery: text }, async() => {
         try {
-
+         
           let results = await fetch(`http://api.giphy.com/v1/gifs/search?api_key=${GIPHY_API_KEY}&q=${this.state.gifQuery}`);
           results = await results.json();
           results = results.data.map((gif) => {
@@ -299,13 +385,23 @@ class ChatWindow extends React.Component {
   }
 
   renderInputToolbar = (props) => (
-    <InputToolbar {...props} containerStyle={{ borderRadius: 15, backgroundColor: '#3B3E46', borderTopColor: 'transparent' }} />
+    <InputToolbar {...props}
+       containerStyle={{ borderRadius: 15, backgroundColor: '#3B3E46', borderTopColor: 'transparent' }} 
+    />
   )
-
 
 componentWillUnmount() {
     this.updateEndUserCount(1); // 1 to bypass the coercion, reseting the current user's count to 0 when they exit this window.
     this.messageListener();
+    if(this.privateTypingListener) {
+      this.privateTypingListener();
+    }
+    if( this.channelTypingListener) {
+      this.channelTypingListener();
+    }
+    // this.typingListener();
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
 
   render() {
@@ -319,6 +415,7 @@ componentWillUnmount() {
         leftComponent={ <BackButton onBackPress={this.onBackPress} /> }
         centerComponent={ 
             <Center 
+              typing={this.state.isTyping}
               uri={currentChannel.iconUrl ? currentChannel.iconUrl : currentChannel.avatar} 
               name={currentChannel.name} 
               status={this.state.currentUserStatus}
@@ -330,10 +427,13 @@ componentWillUnmount() {
       />
         <GiftedChat
             messages={this.state.messages}
+            onInputTextChanged={this.onInputTextChanged}
+            keyboardShouldPersistTaps="never"
             onSend={messages => this.onSend(messages)}
             renderActions={this.renderChatActions}
             renderMessage={this.renderMessage}
             renderInputToolbar={this.renderInputToolbar}
+            textInputProps={this.textInputProps}
             user={{
               _id: this.props.auth.user.uid,
               name: this.props.auth.user.name,
