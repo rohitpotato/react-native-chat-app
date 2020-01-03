@@ -11,6 +11,8 @@ A react native chat application built using firebase, firebase cloud functions a
 4. MarkDown Support.
 5. Location Sharing
 6. Users and Channel Search.
+7. Profile Section.
+8. Unread Messages Indicator
 
 ## TODO
 1. Ios Support.
@@ -23,6 +25,8 @@ A react native chat application built using firebase, firebase cloud functions a
 8. Send Images.
 9. Optimization and Refactor.
 10. Push Notifications
+11. Typing Indicator
+12. Rewrite using Hooks
 
 # Installation
 1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.
