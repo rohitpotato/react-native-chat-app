@@ -10,11 +10,10 @@ import { setChannel, setPrivateChannel } from '../redux/actions/channelActions';
 const ScreenHeigth = Dimensions.get('window').height;
 const ScreenWidth = Dimensions.get('window').width;
 
-class GroupList extends React.PureComponent {
+class GroupList extends React.Component {
 
     shouldComponentUpdate(nextProps, nextState) {
-        return nextProps.unreadCount !== this.props.unreadCount || 
-        nextProps.isTyping !== this.props.isTyping;
+        return nextProps.isTyping !== this.props.isTyping;
     }
 
     handlePress = () => {

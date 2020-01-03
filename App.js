@@ -37,16 +37,6 @@ export default class App extends Component {
      <Provider store={store}>
          <Router />
      </Provider> 
-      // <View style={styles.container}>
-      //   <Text style={{...styles.welcome, fontFamily: 'RobotoMono-Bold', color: 'rgb(0,205,0)'}}>Destruct Native</Text>
-      //   <Text style={styles.instructions}>Chat Privately, Send Self-Destructing Messages.</Text>
-      //   <Text style={styles.instructions}>{instructions}</Text>
-      //   {!firebase.apps.length && (
-      //     <Text style={styles.instructions}>
-      //       {`\nYou currently have no Firebase apps registered, this most likely means you've not downloaded your project credentials. Visit the link below to learn more. \n\n ${firebaseCredentials}`}
-      //     </Text>
-      //   )}
-      // </View>
     );
   }
 }
