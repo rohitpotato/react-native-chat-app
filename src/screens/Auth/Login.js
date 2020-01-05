@@ -57,9 +57,6 @@ class Login extends React.Component {
 
         this.setState({ loading: true }, () => {
             auth().signInWithEmailAndPassword(email, password).then(loggedIn => {
-
-                console.log(loggedIn.user._user.providerData[0])
-
                 const u = loggedIn.user._user.providerData[0]
                 const userObj = {
                     name: u.displayName,

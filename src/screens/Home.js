@@ -205,7 +205,7 @@ class Home extends React.Component {
     const {users, channels, searchActive, searchMode, searchQuery, tabs, results} = this.state;
     return (
     <LinearGradient colors={redux.container.colors} style={{...redux.container,}} >
-      <StatusBar hidden/>
+      <StatusBar backgroundColor="#363940"/>
       {!searchActive ?  
         <Header
           containerStyle={{ backgroundColor: 'transparent', borderBottomColor: 'transparent', height: dimensions.height * 0.09, marginBottom: dimensions.height*0.02 }} 

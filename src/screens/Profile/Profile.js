@@ -104,17 +104,17 @@ class Profile extends React.Component {
              this.props.setUser({
                 ...this.props.profile, avatar: url
             });
-             this.renderFlashMessage('Upload Successfull!', 'info')
+             this.renderFlashMessage('Upload Successfull!', 'info', 'Yay!')
         } catch(e) {
             console.log(e);
             this.renderFlashMessage(e);
         }
     }
 
-    renderFlashMessage = (message, type='danger') => {
+    renderFlashMessage = (message, type='danger', label='Uh-oh!') => {
         this.setState({ error: message.toString(), loading: false }, () => {
         showMessage({
-            message: "Uh-oh!",
+            message: label,
             description: this.state.error,
             type: type
             });

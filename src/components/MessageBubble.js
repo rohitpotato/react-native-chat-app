@@ -103,7 +103,6 @@ export default class Bubble extends React.Component {
   renderMessageText() {
     if (this.props.currentMessage.text) {
       const { containerStyle, wrapperStyle, messageTextStyle, ...messageTextProps } = this.props;
-      console.log(messageTextProps);
       let deletedStyle = { fontFamily: 'RobotoMono-Italic', color: 'red', fontSize: 12, textAlign: 'center', padding: 4 };
 
       if(this.props.currentMessage.messageType !== 'deleted') {

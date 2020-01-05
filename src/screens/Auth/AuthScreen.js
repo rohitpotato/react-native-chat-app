@@ -20,20 +20,22 @@ const AuthScreen = (props) => {
         props.navigation.navigate('Register')
     }
 
-    // const {styles: redux, dimensions} = props.global;
+    const {styles: redux, dimensions} = props.global;
 
         return (
-            <LinearGradient colors={['#2D3436', '#000000']} style={{ flex: 1 }}>
-                <StatusBar hidden />
+            <LinearGradient colors={redux.container.colors} style={{ flex: 1 }}>
+                <StatusBar backgroundColor="#363940"/>
                 <View>
-                    <ImageBackground 
-                        source={require('../../../assets/justice4.png')}
-                        resizeMode="cover"
-                        style={{ height: ScreenHeight, width: ScreenWidth }}
-                        imageStyle={{ opacity: 0.5 }}
-                    >
-                        <View style={{ marginTop: ScreenHeight*0.25, marginLeft: ScreenHeight*0.05,  }}>
+
+                        <View style={{ marginTop: ScreenHeight*0.1, marginLeft: ScreenHeight*0.05,  }}>
                             <Text style={{ color: 'white', fontFamily: 'RobotoMono-Bold', fontSize: 50, }}>TEMP-CHAT</Text>
+                        </View>
+                        <View style={{ alignItems: 'center', marginRight: dimensions.width*0.15, marginTop: 10 }}>
+                            <Image 
+                                style={{ height: dimensions.height/8 }}
+                                resizeMode="center"
+                                source={require('../../../assets/flash.png')}
+                            />
                         </View>
                         <View style={{ marginTop: ScreenHeight*0.06, marginLeft: ScreenHeight*0.05,  }}>
                             <Text style={{ color: 'white', fontSize: 19 }}>
@@ -48,7 +50,7 @@ const AuthScreen = (props) => {
                         <View style={{ alignItems: 'center', marginTop: ScreenHeight*0.05 }}>
                             <TouchableOpacity 
                                 activeOpacity={0.6}
-                                onPress={this.handleSignUpPress} 
+                                onPress={handleSignUpPress} 
                                 style={{ backgroundColor: 'black', borderRadius: 8 }}
                             > 
                                 <Text style={{ color: 'white', padding: 10, fontSize: 18, letterSpacing: 1.25 }}>REGISTER</Text>
@@ -61,14 +63,13 @@ const AuthScreen = (props) => {
                             <View>
                                 <TouchableOpacity 
                                     activeOpacity={0.6}
-                                    onPress={this.handleLoginPress} 
+                                    onPress={handleLoginPress} 
                                     style={{ backgroundColor: 'black', borderRadius: 8 }}
                                 > 
                                     <Text style={{ color: 'white', padding: 10, fontSize: 18, letterSpacing: 1.25 }}>LOGIN</Text>
                                 </TouchableOpacity>
                             </View>
                         </View>
-                    </ImageBackground>
                 </View>
             </LinearGradient>
     )
@@ -116,5 +117,8 @@ const styles = StyleSheet.create({
     }
 })
 
+const mapStateToProps = state => ({
+    global: state.global
+})
 
-export default  connect(null)(AuthScreen);
+export default  connect(mapStateToProps)(AuthScreen);
