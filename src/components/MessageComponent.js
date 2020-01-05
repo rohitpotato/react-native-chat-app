@@ -3,6 +3,7 @@ import {
   View,
   ViewPropTypes,
   StyleSheet,
+  PropTypes
 } from 'react-native';
 
 import { Avatar, Day, utils } from 'react-native-gifted-chat';
@@ -13,154 +14,110 @@ import { setProfile } from '../redux/actions/authActions';
 
 const { isSameUser, isSameDay } = utils;
 
+const styles = {
+  left: StyleSheet.create({
+      container: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-start',
+          marginLeft: 8,
+          marginRight: 0,
+      },
+  }),
+  right: StyleSheet.create({
+      container: {
+          flexDirection: 'row',
+          alignItems: 'flex-end',
+          justifyContent: 'flex-end',
+          marginLeft: 0,
+          marginRight: 8,
+      },
+  }),
+};
 class MessageComponent extends React.Component {
-
   shouldComponentUpdate(nextProps) {
-    const next = nextProps.currentMessage
-    const current = this.props.currentMessage
-    const { previousMessage, nextMessage } = this.props
-    const nextPropsMessage = nextProps.nextMessage
-    const nextPropsPreviousMessage = nextProps.previousMessage
-
-    const shouldUpdate =
-      (this.props.shouldUpdateMessage &&
-        this.props.shouldUpdateMessage(this.props, nextProps)) ||
-      false
-
-    return (
-      next.sent !== current.sent ||
-      next.received !== current.received ||
-      next.pending !== current.pending ||
-      next.createdAt !== current.createdAt ||
-      next.text !== current.text ||
-      next.image !== current.image ||
-      next.video !== current.video ||
-      next.audio !== current.audio ||
-      previousMessage !== nextPropsPreviousMessage ||
-      nextMessage !== nextPropsMessage ||
-      shouldUpdate
-    )
+      const next = nextProps.currentMessage;
+      const current = this.props.currentMessage;
+      const { previousMessage, nextMessage } = this.props;
+      const nextPropsMessage = nextProps.nextMessage;
+      const nextPropsPreviousMessage = nextProps.previousMessage;
+      const shouldUpdate = (this.props.shouldUpdateMessage &&
+          this.props.shouldUpdateMessage(this.props, nextProps)) ||
+          false;
+      return (next.sent !== current.sent ||
+          next.received !== current.received ||
+          next.pending !== current.pending ||
+          next.createdAt !== current.createdAt ||
+          next.text !== current.text ||
+          next.image !== current.image ||
+          next.video !== current.video ||
+          next.audio !== current.audio ||
+          previousMessage !== nextPropsPreviousMessage ||
+          nextMessage !== nextPropsMessage ||
+          shouldUpdate);
   }
-
-  getInnerComponentProps() {
-    const { containerStyle, ...props } = this.props;
-    return {
-      ...props,
-      position: 'left',
-      isSameUser,
-      isSameDay,
-    };
-  }
-
   renderDay() {
-    if (this.props.currentMessage.createdAt) {
-      const dayProps = this.getInnerComponentProps();
-      if (this.props.renderDay) {
-        return this.props.renderDay(dayProps);
+      if (this.props.currentMessage && this.props.currentMessage.createdAt) {
+          const { containerStyle, ...props } = this.props;
+          if (this.props.renderDay) {
+              return this.props.renderDay(props);
+          }
+          return <Day {...props}/>;
       }
-      return <Day {...dayProps} />;
-    }
-    return null;
+      return null;
   }
-
   renderBubble() {
-    const bubbleProps = this.getInnerComponentProps();
-    if (this.props.renderBubble) {
-      return this.props.renderBubble(bubbleProps);
-    }
-    return <MessageBubble {...bubbleProps} />;
+      const { containerStyle, ...props } = this.props;
+      if (this.props.renderBubble) {
+          return this.props.renderBubble(props);
+      }
+      return <MessageBubble {...props}/>;
   }
-
+  renderSystemMessage() {
+      const { containerStyle, ...props } = this.props;
+      if (this.props.renderSystemMessage) {
+          return this.props.renderSystemMessage(props);
+      }
+      return <SystemMessage {...props}/>;
+  }
   renderAvatar() {
-    let extraStyle;
-    if (
-      isSameUser(this.props.currentMessage, this.props.nextMessage)
-      && isSameDay(this.props.currentMessage, this.props.nextMessage)
-    ) {
-      // Set the invisible avatar height to 0, but keep the width, padding, etc.
-      extraStyle = { height: 0 };
-    }
-
-    const avatarProps = this.getInnerComponentProps();
-    return (
-      <Avatar
-        {...avatarProps}
-        onPressAvatar={() => {this.onAvatarPress(this.props.currentMessage.user) }}
-        imageStyle={{ left: [styles.slackAvatar, avatarProps.imageStyle, extraStyle] }}
-      />
-    );
+      const { user, currentMessage, showUserAvatar } = this.props;
+      if (user &&
+          user._id &&
+          currentMessage &&
+          currentMessage.user &&
+          user._id === currentMessage.user._id &&
+          !showUserAvatar) {
+          return null;
+      }
+      if (currentMessage && currentMessage.user && currentMessage.user.avatar === null) {
+          return null;
+      }
+      const { containerStyle, ...props } = this.props;
+      return <Avatar {...props}/>;
   }
-
-  onAvatarPress = (user) => {
-    this.props.setProfile({
-      uid: user._id,
-      name: user.name,
-      avatar: user.avatar
-    })
-    this.props.navigation.navigate('Profile');
-  }
-
   render() {
-    const marginBottom = isSameUser(this.props.currentMessage, this.props.nextMessage) ? 2 : 10;
-
-    return (
-      <View>
+      const { currentMessage, nextMessage, position, containerStyle } = this.props;
+      if (currentMessage) {
+          const sameUser = isSameUser(currentMessage, nextMessage);
+          return (<View>
         {this.renderDay()}
-        <View
-          style={[
-            styles.container,
-            { marginBottom },
-            this.props.containerStyle,
-          ]}
-        >
-          {this.renderAvatar()}
-          {this.renderBubble()}
-        </View>
-      </View>
-    );
+        {currentMessage.system ? (this.renderSystemMessage()) : (<View style={[
+              styles[position].container,
+              { marginBottom: sameUser ? 2 : 10 },
+              !this.props.inverted && { marginBottom: 2 },
+              containerStyle && containerStyle[position],
+          ]}>
+            {this.props.position === 'left' ? this.renderAvatar() : null}
+            {this.renderBubble()}
+            {this.props.position === 'right' ? this.renderAvatar() : null}
+          </View>)}
+      </View>);
+      }
+      return null;
   }
-
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'flex-start',
-    marginLeft: 8,
-    marginRight: 0,
-  },
-  slackAvatar: {
-    // The bottom should roughly line up with the first line of message text.
-    height: 30,
-    width: 30,
-    borderRadius: 15,
-  },
-});
+export default MessageComponent;
 
-export default withNavigation(connect(null, { setProfile })(MessageComponent));
-
-// Message.defaultProps = {
-//   renderAvatar: undefined,
-//   renderBubble: null,
-//   renderDay: null,
-//   currentMessage: {},
-//   nextMessage: {},
-//   previousMessage: {},
-//   user: {},
-//   containerStyle: {},
-// };
-
-// Message.propTypes = {
-//   renderAvatar: PropTypes.func,
-//   renderBubble: PropTypes.func,
-//   renderDay: PropTypes.func,
-//   currentMessage: PropTypes.object,
-//   nextMessage: PropTypes.object,
-//   previousMessage: PropTypes.object,
-//   user: PropTypes.object,
-//   containerStyle: PropTypes.shape({
-//     left: ViewPropTypes.style,
-//     right: ViewPropTypes.style,
-//   }),
-// };
+//# sourceMappingURL=Message.js.map

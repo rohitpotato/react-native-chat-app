@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StatusBar } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import {connect} from 'react-redux';
 import firebase from '@react-native-firebase/app';
@@ -204,8 +204,8 @@ class Home extends React.Component {
     const {styles:redux, dimensions} = this.props.global;
     const {users, channels, searchActive, searchMode, searchQuery, tabs, results} = this.state;
     return (
-    <LinearGradient colors={['#000000', '#414141']} style={{...redux.container,}} >
-      
+    <LinearGradient colors={redux.container.colors} style={{...redux.container,}} >
+      <StatusBar hidden/>
       {!searchActive ?  
         <Header
           containerStyle={{ backgroundColor: 'transparent', borderBottomColor: 'transparent', height: dimensions.height * 0.09, marginBottom: dimensions.height*0.02 }} 
@@ -235,7 +235,7 @@ class Home extends React.Component {
           />
          <TouchableOpacity 
             style={{ flex: 0.2, alignSelf: 'center', paddingLEf: 10 }}
-            onPress={() => this.setState({ searchActive: false })}
+            onPress={() => this.setState({ searchActive: false, results })}
           >
           <Text style={{ fontSize: 11, color: 'white', }}>CANCEL</Text>
          </TouchableOpacity>

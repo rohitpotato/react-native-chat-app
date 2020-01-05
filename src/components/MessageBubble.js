@@ -4,6 +4,7 @@ import {
   Text,
   Clipboard,
   StyleSheet,
+  TouchableWithoutFeedback,
   TouchableOpacity,
   View,
   ViewPropTypes,
@@ -18,49 +19,92 @@ import {
 import Markdown from 'react-native-markdown-renderer';
 import MapView from 'react-native-maps'
 
-import { Avatar ,MessageText, MessageImage, Time, utils, } from 'react-native-gifted-chat';
+import { Avatar ,MessageText, MessageImage, Time, utils } from 'react-native-gifted-chat';
 
-const { isSameUser, isSameDay } = utils;
+const { isSameUser, isSameDay, Col } = utils;
+const DEFAULT_OPTION_TITLES = ['Copy Text', 'Cancel'];
 
 export default class Bubble extends React.Component {
 
-  constructor(props) {
-    super(props);
-    this.onLongPress = this.onLongPress.bind(this);
-  }
-
-  onLongPress() {
-    if (this.props.onLongPress) {
-      this.props.onLongPress(this.context, this.props.currentMessage);
-    } else {
-      if (this.props.currentMessage.text) {
-        const options = [
-          'Copy Text',
-          'Cancel',
-        ];
-        const cancelButtonIndex = options.length - 1;
-        // this.context
-        this.context.actionSheet().showActionSheetWithOptions({
-          options,
-          cancelButtonIndex,
-        },
-        (buttonIndex) => {
-          switch (buttonIndex) {
-            case 0:
-              Clipboard.setString(this.props.currentMessage.text);
-              break;
+    constructor() {
+      super(...arguments);
+      this.onLongPress = () => {
+          const { currentMessage } = this.props;
+          if (this.props.onLongPress) {
+              this.props.onLongPress(this.context, this.props.currentMessage);
           }
-        });
+          else if (currentMessage && currentMessage.text) {
+              const { optionTitles } = this.props;
+              const options = optionTitles && optionTitles.length > 0
+                  ? optionTitles.slice(0, 2)
+                  : DEFAULT_OPTION_TITLES;
+              const cancelButtonIndex = options.length - 1;
+              this.context.actionSheet().showActionSheetWithOptions({
+                  options,
+                  cancelButtonIndex,
+              }, (buttonIndex) => {
+                  switch (buttonIndex) {
+                      case 0:
+                          Clipboard.setString(currentMessage.text);
+                          break;
+                      default:
+                          break;
+                  }
+              });
+          }
+      };
+  }
+  styledBubbleToNext() {
+      const { currentMessage, nextMessage, position, containerToNextStyle, } = this.props;
+      if (currentMessage &&
+          nextMessage &&
+          position &&
+          isSameUser(currentMessage, nextMessage) &&
+          isSameDay(currentMessage, nextMessage)) {
+          return [
+              styles[position].containerToNext,
+              containerToNextStyle && containerToNextStyle[position],
+          ];
       }
-    }
+      return null;
+  }
+  styledBubbleToPrevious() {
+      const { currentMessage, previousMessage, position, containerToPreviousStyle, } = this.props;
+      if (currentMessage &&
+          previousMessage &&
+          position &&
+          isSameUser(currentMessage, previousMessage) &&
+          isSameDay(currentMessage, previousMessage)) {
+          return [
+              styles[position].containerToPrevious,
+              containerToPreviousStyle && containerToPreviousStyle[position],
+          ];
+      }
+      return null;
+  }
+  renderQuickReplies() {
+      const { currentMessage, onQuickReply, nextMessage, renderQuickReplySend, quickReplyStyle, } = this.props;
+      if (currentMessage && currentMessage.quickReplies) {
+          const { containerStyle, wrapperStyle, ...quickReplyProps } = this.props;
+          if (this.props.renderQuickReplies) {
+              return this.props.renderQuickReplies(quickReplyProps);
+          }
+          return (<QuickReplies {...{
+              currentMessage,
+              onQuickReply,
+              nextMessage,
+              renderQuickReplySend,
+              quickReplyStyle,
+          }}/>);
+      }
+      return null;
   }
 
   renderMessageText() {
-    // console.log(this.props.currentMessage);
     if (this.props.currentMessage.text) {
       const { containerStyle, wrapperStyle, messageTextStyle, ...messageTextProps } = this.props;
-
-      let deletedStyle = { fontFamily: 'RobotoMono-Italic', color: 'white', fontSize: 12 };
+      console.log(messageTextProps);
+      let deletedStyle = { fontFamily: 'RobotoMono-Italic', color: 'red', fontSize: 12, textAlign: 'center', padding: 4 };
 
       if(this.props.currentMessage.messageType !== 'deleted') {
          deletedStyle = {}
@@ -77,11 +121,13 @@ export default class Bubble extends React.Component {
           >
             { this.props.currentMessage.text } 
           </Markdown>
-        ) :             
+        ) :  
+        // console.log('Inide other condition?')      
         (<MessageText
               {...messageTextProps}
               textStyle={{
-                left: {...styles.standardFont, ...styles.slackMessageText, ...messageTextProps.textStyle, ...messageTextStyle, ...deletedStyle},
+                left: { ...messageTextProps.textStyle, ...deletedStyle},
+                right: { ...messageTextProps.textStyle, ...deletedStyle},
               }}
           />)
      }
@@ -89,71 +135,88 @@ export default class Bubble extends React.Component {
   }
 
   renderMessageImage() {
-    if (this.props.currentMessage.image) {
-      const { containerStyle, wrapperStyle, ...messageImageProps } = this.props;
-      if (this.props.renderMessageImage) {
-        return this.props.renderMessageImage(messageImageProps);
-      }
-      return <MessageImage {...messageImageProps}  />;
+    if (this.props.currentMessage && this.props.currentMessage.image) {
+        const { containerStyle, wrapperStyle, ...messageImageProps } = this.props;
+        if (this.props.renderMessageImage) {
+            return this.props.renderMessageImage(messageImageProps);
+        }
+        return <MessageImage {...messageImageProps}/>;
     }
     return null;
-  }
-
-  renderTicks() {
-    const { currentMessage } = this.props;
-    if (this.props.renderTicks) {
-      return this.props.renderTicks(currentMessage);
-    }
-    if (currentMessage.user._id !== this.props.user._id) {
+}
+  renderMessageVideo() {
+      if (this.props.currentMessage && this.props.currentMessage.video) {
+          const { containerStyle, wrapperStyle, ...messageVideoProps } = this.props;
+          if (this.props.renderMessageVideo) {
+              return this.props.renderMessageVideo(messageVideoProps);
+          }
+          return <MessageVideo {...messageVideoProps}/>;
+      }
       return null;
-    }
-    if (currentMessage.sent || currentMessage.received) {
-      return (
-        <View style={[styles.headerItem, styles.tickView]}>
-          {currentMessage.sent && <Text style={[styles.standardFont, styles.tick, this.props.tickStyle]}>✓</Text>}
-          {currentMessage.received && <Text style={[styles.standardFont, styles.tick, this.props.tickStyle]}>✓</Text>}
-        </View>
-      );
-    }
-    return null;
   }
-
-  renderUsername() {
-    const username = this.props.currentMessage.user.name;
-    if (username) {
-      const { containerStyle, wrapperStyle, ...usernameProps } = this.props;
-      if (this.props.renderUsername) {
-        return this.props.renderUsername(usernameProps);
+  renderTicks() {
+      const { currentMessage, renderTicks, user } = this.props;
+      if (renderTicks && currentMessage) {
+          return renderTicks(currentMessage);
       }
-
-      return (
-        <View style={{ flexDirection: 'row' }}>
-          <Text style={[styles.standardFont, styles.headerItem, styles.username, this.props.usernameStyle]}>
-            {username}
-          </Text>
-        </View>
-      );
-    }
-    return null;
+      if (currentMessage && user && currentMessage.user && currentMessage.user._id !== user._id) {
+          return null;
+      }
+      if (currentMessage &&
+          (currentMessage.sent || currentMessage.received || currentMessage.pending)) {
+          return (<View style={styles.content.tickView}>
+        {!!currentMessage.sent && (<Text style={[styles.content.tick, this.props.tickStyle]}>✓</Text>)}
+        {!!currentMessage.received && (<Text style={[styles.content.tick, this.props.tickStyle]}>✓</Text>)}
+        {!!currentMessage.pending && (<Text style={[styles.content.tick, this.props.tickStyle]}>🕓</Text>)}
+      </View>);
+      }
+      return null;
   }
-
   renderTime() {
-    if (this.props.currentMessage.createdAt) {
-      const { containerStyle, wrapperStyle, ...timeProps } = this.props;
-      if (this.props.renderTime) {
-        return this.props.renderTime(timeProps);
+      if (this.props.currentMessage && this.props.currentMessage.createdAt) {
+          const { containerStyle, wrapperStyle, textStyle, ...timeProps } = this.props;
+          if (this.props.renderTime) {
+              return this.props.renderTime(timeProps);
+          }
+          return <Time {...timeProps}/>;
       }
-      return (
-        <Time
-          {...timeProps}
-          containerStyle={{ left: [styles.timeContainer] }}
-          textStyle={{ left: [styles.standardFont, styles.headerItem, styles.time, timeProps.textStyle] }}
-        />
-      );
-    }
-    return null;
+      return null;
   }
-
+  renderUsername() {
+      const { currentMessage, user } = this.props;
+      if (this.props.renderUsernameOnMessage && currentMessage) {
+          if (user && currentMessage.user._id === user._id) {
+              return null;
+          }
+          return (<View style={styles.content.usernameView}>
+        <Text style={[styles.content.username, this.props.usernameStyle]}>
+          ~ {currentMessage.user.name}
+        </Text>
+      </View>);
+      }
+      return null;
+  }
+  renderCustomView() {
+      if (this.props.renderCustomView) {
+          return this.props.renderCustomView(this.props);
+      }
+      return null;
+  }
+  renderBubbleContent() {
+    return this.props.isCustomViewBottom ? (<View>
+    {this.renderMessageImage()}
+    {this.renderMessageVideo()}
+    {this.renderMessageText()}
+    {this.renderCustomView()}
+    {this.renderLocation()}
+  </View>) : (<View>
+    {this.renderCustomView()}
+    {this.renderMessageImage()}
+    {this.renderMessageVideo()}
+    {this.renderMessageText()}
+    {this.renderLocation()}
+  </View>);
+}
   renderLocation() {
       if (this.props.currentMessage.location) {
         return (
@@ -208,117 +271,131 @@ export default class Bubble extends React.Component {
   }
 
   render() {
-    const isSameThread = isSameUser(this.props.currentMessage, this.props.previousMessage)
-      && isSameDay(this.props.currentMessage, this.props.previousMessage);
-
-    const messageHeader = isSameThread ? null : (
-      <View style={styles.headerView}>
-        {this.renderUsername()}
-        {this.renderTime()}
-        {this.renderTicks()}
-      </View>
-    );
-
-    return (
-      <View style={[styles.container, this.props.containerStyle]}>
-        <TouchableOpacity
-          onLongPress={this.onLongPress}
-          accessibilityTraits="text"
-          {...this.props.touchableProps}
-        >
-          <View
-            style={[
-              styles.wrapper,
-              this.props.wrapperStyle,
-            ]}
-          >
-            <View>
-              {this.renderCustomView()}
-              {messageHeader}
-              {this.renderMessageImage()}
-              {this.renderMessageText()}
-              {this.renderLocation()}
-            </View>
+    const { position, containerStyle, wrapperStyle, bottomContainerStyle, } = this.props;
+    return (<View style={[
+        styles[position].container,
+        containerStyle && containerStyle[position],
+    ]}>
+    <View style={[
+        styles[position].wrapper,
+        wrapperStyle && wrapperStyle[position],
+        this.styledBubbleToNext(),
+        this.styledBubbleToPrevious(),
+    ]}>
+      <TouchableWithoutFeedback onLongPress={this.onLongPress} accessibilityTraits='text' {...this.props.touchableProps}>
+        <View>
+          {this.renderBubbleContent()}
+          <View style={[
+        styles[position].bottom,
+        bottomContainerStyle && bottomContainerStyle[position],
+    ]}>
+            {this.renderUsername()}
+            {this.renderTime()}
+            {this.renderTicks()}
           </View>
-        </TouchableOpacity>
-      </View>
-    );
-  }
+        </View>
+      </TouchableWithoutFeedback>
+    </View>
+    {this.renderQuickReplies()}
+  </View>);
+}
 
 }
 
+const Color =  {
+  defaultColor: '#b2b2b2',
+  backgroundTransparent: 'transparent',
+  defaultBlue: '#0084ff',
+  leftBubbleBackground: '#f0f0f0',
+  black: '#000',
+  white: '#fff',
+  carrot: '#e67e22',
+  emerald: '#2ecc71',
+  peterRiver: '#3498db',
+  wisteria: '#8e44ad',
+  alizarin: '#e74c3c',
+  turquoise: '#1abc9c',
+  midnightBlue: '#2c3e50',
+  optionTintColor: '#007AFF',
+  timeTextColor: '#aaa',
+};
 
-// Note: Everything is forced to be "left" positioned with this component.
-// The "right" position is only used in the default Bubble.
-const styles = StyleSheet.create({
-  standardFont: {
-    fontSize: 15,
-  },
-  slackMessageText: {
-    marginLeft: 0,
-    color: 'white',
-    fontSize: 13,
-    fontFamily: 'RobotoMono-Regular',
-    marginRight: 0,
-  },
-  container: {
-    flex: 1,
-    alignItems: 'flex-start',
-  },
-  wrapper: {
-    marginRight: 60,
-    minHeight: 20,
-    justifyContent: 'flex-end',
-  },
-  username: {
-    color:'white',
-    fontWeight: 'bold',
-  },
-  time: {
-    textAlign: 'left',
-    fontSize: 12,
-  },
-  timeContainer: {
-    marginLeft: 0,
-    marginRight: 0,
-    marginBottom: 0,
-  },
-  headerItem: {
-    marginRight: 10,
-  },
-  headerView: {
-    // Try to align it better with the avatar on Android.
-    marginTop: Platform.OS === 'android' ? -2 : 0,
-    flexDirection: 'row',
-    alignItems: 'baseline',
-  },
-  /* eslint-disable react-native/no-color-literals */
-  tick: {
-    backgroundColor: 'transparent',
-    color: 'white',
-  },
-  /* eslint-enable react-native/no-color-literals */
-  tickView: {
-    flexDirection: 'row',
-  },
-  slackImage: {
-    borderRadius: 3,
-    marginLeft: 0,
-    marginRight: 0,
-  },
-  slackAvatar: {
-    // The bottom should roughly line up with the first line of message text.
-    height: 40,
-    width: 40,
-    borderRadius: 3,
-  },
+const styles = {
+  left: StyleSheet.create({
+      container: {
+          flex: 1,
+          alignItems: 'flex-start',
+      },
+      wrapper: {
+          borderRadius: 15,
+          backgroundColor: '#1D1C27',
+          marginRight: 60,
+          minHeight: 20,
+          justifyContent: 'flex-end',
+      },
+      containerToNext: {
+          borderBottomLeftRadius: 3,
+      },
+      containerToPrevious: {
+          borderTopLeftRadius: 3,
+      },
+      bottom: {
+          flexDirection: 'row',
+          justifyContent: 'flex-start',
+      },
+  }),
+  right: StyleSheet.create({
+      container: {
+          flex: 1,
+          alignItems: 'flex-end',
+      },
+      wrapper: {
+          borderRadius: 15,
+          backgroundColor: '#1D1C27',
+          marginLeft: 60,
+          minHeight: 20,
+          justifyContent: 'flex-end',
+      },
+      containerToNext: {
+          borderBottomRightRadius: 3,
+      },
+      containerToPrevious: {
+          borderTopRightRadius: 3,
+      },
+      bottom: {
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+      },
+  }),
+  content: StyleSheet.create({
+      tick: {
+          fontSize: 10,
+          backgroundColor: Color.backgroundTransparent,
+          color: Color.white,
+      },
+      tickView: {
+          flexDirection: 'row',
+          marginRight: 10,
+      },
+      username: {
+          top: -3,
+          left: 0,
+          fontSize: 12,
+          backgroundColor: 'transparent',
+          color: '#aaa',
+      },
+      usernameView: {
+          flexDirection: 'row',
+          marginHorizontal: 10,
+      },
+  }),
   mapView: {
     width: 150,
     height: 100,
     borderRadius: 13,
     margin: 3,
-  },
-});
+  }
+};
 
 const markdownStyle = StyleSheet.create({
   autolink: {
@@ -409,7 +486,7 @@ const markdownStyle = StyleSheet.create({
   },
     codeBlock: {
     fontFamily: 'RobotoMono-Regular',
-    backgroundColor: 'grey',
+    backgroundColor: '#27292C',
     padding: 20,
     fontSize: 12,
     color: 'white'
@@ -498,7 +575,9 @@ const markdownStyle = StyleSheet.create({
   },
   text: {
     color: 'white',
-    fontSize: 12,
+    fontSize: 13,
+    padding: 7,
+    textAlign: 'center',
     fontFamily: 'RobotoMono-Regular'
   },
   textRow: {

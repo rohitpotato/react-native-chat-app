@@ -51,7 +51,7 @@ class Login extends React.Component {
 
     handleLogin = () => {
         const {email, password} = this.state;
-        if(!this.validation) {
+        if(!this.validation()) {
             return;
         }
 
@@ -95,7 +95,7 @@ class Login extends React.Component {
                <View style={{...styles.headerContainer, marginTop: dimensions.height*0.05, alignItems: 'center'}}>
                    <Text style={styles.headerTextStyle}>
                       Sign in to begin your experience.
-                   </Text>
+                   </Text> 
                </View>
                <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: dimensions.height*0.05, marginBottom: dimensions.height*0.02}}>
                     <Image 

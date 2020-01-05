@@ -27,9 +27,9 @@ const GiphyComponent  = (props) => {
                     <TouchableOpacity
                       onPress={() => props.onSelectGif(item.preview_url)}
                     >
-                       <View>
+                       <View style={{ borderRadius: 50, margin: 20,}}>
                         <Image
-                          resizeMode={"contain"}
+                          resizeMode="cover"
                           style={styles.image}
                           source={{uri: item.preview_url}}
                         />
@@ -60,10 +60,11 @@ const styles = StyleSheet.create({
       height: 35,
       marginTop: 5,
       marginBottom: 10,
+      borderRadius: 8,
       borderColor: "#ccc",
       borderWidth: 1,
-     
-      padding: 5
+      marginLeft: 10,
+      marginRight: 10
     },
     button_container: {
       flex: 1,
@@ -73,9 +74,9 @@ const styles = StyleSheet.create({
       justifyContent: 'space-around'
     },
     image: {
-      borderRadius: 20,
-      width: 100,
-      height: 100
+      borderRadius: 80,
+      height: ScreenHeight*0.4*0.4,
+      width: ScreenWidth*0.3
     }
   });
 

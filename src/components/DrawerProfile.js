@@ -19,7 +19,7 @@ const ProfileDrawer = props => {
                     <TouchableOpacity
                         onPress={props.onPress}
                     >
-                       {props.loading ? <ActivityIndicator size="small" color="blue" animating/> : <Text style={{ color: 'white'}}>SIGN OUT</Text>}
+                       {props.loading ? <ActivityIndicator size="small" color="blue" animating/> : <Text style={{ color: 'white', fontSize: 12}}>Logout</Text>}
                     </TouchableOpacity>
                 </View>
             </View>

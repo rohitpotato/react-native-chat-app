@@ -27,19 +27,8 @@ class GroupList extends React.Component {
         console.log('FLATLIST CHANNEL');
         return (
                 <ListItem
-                    Component={TouchableScale}
-                    friction={90} //
                     onPress={this.handlePress}
-                    activeOpacity={0.1}
-                    tension={50} // These props are passed to the parent component (here TouchableScale)
-                    activeScale={0.95} //
-                    containerStyle={{ backgroundColor: 'transparent' }}
-                    // linearGradientProps={{
-                    // colors: ['#FF9800', '#F44336'],
-                    // start: [1, 0],
-                    // end: [0.2, 0],
-                    // }}
-                    // ViewComponent={LinearGradient} // Only if no expo
+                    containerStyle={{ backgroundColor: 'transparent', elevation: 0.4 }}
                     leftAvatar={{ rounded: true, source: { uri: channel.iconUrl } }}
                     title={channel.name}
                     titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
@@ -49,7 +38,6 @@ class GroupList extends React.Component {
                         : channel.about
                     }
                     subtitleStyle={{ color: 'grey', fontSize: 12 }}
-                    //subtitle="Vice Chairman"
                     chevron={{ color: 'grey' }}
             />
         )
