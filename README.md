@@ -31,10 +31,13 @@ A react native chat application built using firebase, firebase cloud functions a
 12. Rewrite using Hooks
 
 # Installation
-1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.
+1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase. 
+
+### (Get your `google-services.json` file from your firebase console and paste it inside `android/app` folder.)
+
 2. `yarn install` to install all dependencies.
 3. **[Initialize a firebase cloud function project](https://firebase.google.com/docs/functions/get-started).**
-4. Download your admin sdk key file from *`https://console.firebase.google.com/u/0/project/YOUR_PROJECT_ID/settings/serviceaccounts/adminsdk`* and paste it inside the `functions` directory.
+4. Download your admin sdk key file from *`https://console.firebase.google.com/u/0/project/YOUR_PROJECT_ID/settings/serviceaccounts/adminsdk`* and paste it inside the `functions` directory inside the cloud functions project. 
 
 ## Add the following code to your `functions/index.js`: (For self-destucting messages and online/offline presence to work)
 
@@ -43,7 +46,7 @@ const functions = require('firebase-functions');
 const {performance} = require('perf_hooks');
 const admin = require('firebase-admin');
 admin.initializeApp({
-  credential: admin.credential.cert(require('./self-destruct-native-firebase-adminsdk-7kmhp-55c3c183a7.json'))
+  credential: admin.credential.cert(require('YOUR_ADMIN_SDK_FILE.json'))
 });
 
 // Since this code will be running in the Cloud Functions environment
