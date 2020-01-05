@@ -31,9 +31,8 @@ A react native chat application built using firebase, firebase cloud functions a
 12. Rewrite using Hooks
 
 # Installation
-1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase. 
-
-### (Get your `google-services.json` file from your firebase console and paste it inside `android/app` folder.)
+1. Follow the [react-native-firebase](https://invertase.io/oss/react-native-firebase/quick-start/android-firebase-credentials) setup guide here to correctly set up firebase.  
+      ###### (Get your `google-services.json` file from your firebase console and paste it inside `android/app` folder.)
 
 2. `yarn install` to install all dependencies.
 3. **[Initialize a firebase cloud function project](https://firebase.google.com/docs/functions/get-started).**
