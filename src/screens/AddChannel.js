@@ -1,8 +1,9 @@
 import React from 'react';
 import {
-        View, Text, FlatList, 
+        View, Text, 
         ActivityIndicator, Dimensions, 
-        StyleSheet, TouchableOpacity, Image
+        StyleSheet, TouchableOpacity, Image,
+        StatusBar
       } 
         from 'react-native';
 import {connect} from 'react-redux'
@@ -134,7 +135,6 @@ class AddChannel extends React.Component {
                 description: 'Channel Added.',
                 type: 'success'
             })
-            console.log('added Channel')
         }).catch(e => {
             console.log(e);
             this.renderError(e);
@@ -159,14 +159,14 @@ class AddChannel extends React.Component {
 
     render() {
         const {styles: redux} = this.props;
-        const { loading, channel, channels, channelImage, channelAbout } = this.state;
-        console.log(this.state.progress);
+        const { loading, channel, channelImage, channelAbout } = this.state;
         return (
             <LinearGradient colors={redux.container.colors} style={{ flex: 1 }}>
+                <StatusBar hidden/>
                 <Header 
                     leftIcon
                     headerTextStyle={{ fontSize: 18, fontFamily: 'RobotoMono-Regular', color: 'white', }}
-                    titleText="CHANNELS"
+                    titleText="ADD A CHANNEL"
                 />
                  <KeyboardAwareScrollView 
                     keyboardShouldPersistTaps="always"

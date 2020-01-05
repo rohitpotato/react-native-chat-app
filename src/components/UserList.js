@@ -24,28 +24,17 @@ class UserList extends React.Component {
 
     render() {
         const { user } = this.props;
-        console.log('FLATLIST USER');
-        // console.log(this.props.isTyping)
         return (
             <ListItem
-                Component={TouchableScale}
-                friction={90} //
                 onPress={this.handlePress}
-                tension={100} // These props are passed to the parent component (here TouchableScale)
-                activeScale={0.95} //
-                containerStyle={{ backgroundColor: 'transparent' }}
+                containerStyle={{ backgroundColor: 'transparent', elevation: 0.5, borderColor: 'transparent' }}
                 rightIcon={
+
                     this.props.unreadCount && this.props.unreadCount.count ? 
                     <View style={{ height: 20, width: 20, borderRadius: 10, backgroundColor: '#f80000' }}>
                         <Text style={{ color: 'white', alignSelf: 'center' }}>{this.props.unreadCount ? this.props.unreadCount.count : null}</Text>
                     </View> : null
                 }
-                // linearGradientProps={{
-                // colors: ['#FF9800', '#F44336'],
-                // start: [1, 0],
-                // end: [0.2, 0],
-                // }}
-                // ViewComponent={LinearGradient} // Only if no expos
                 leftAvatar={{ rounded: true, source: { uri: user.avatar } }}
                 title={user.name}
                 titleStyle={{ color: 'white', fontFamily: 'RobotoMono-Regular', fontSize: 14 }}
@@ -56,7 +45,6 @@ class UserList extends React.Component {
                     : null
                 }
                 chevron={{ color: 'grey' }}
-                //badge={<Badge status="error" value={this.props.unreadCount.count} />}
             />
         )
     }

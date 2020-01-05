@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, Keyboard } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, StatusBar } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import { GiftedChat, InputToolbar} from 'react-native-gifted-chat';
 import Geolocation from '@react-native-community/geolocation';
@@ -109,7 +109,6 @@ class ChatWindow extends React.Component {
 
   setTypingStatus = async (status) => {
     if(this.props.channel.isPrivate) {
-      console.log('here?')
       try {
         await this.state.privateTypingRef.doc(this.props.channel.currentChannel.uid).set({
           [this.props.auth.user.uid] : {
@@ -391,8 +390,10 @@ class ChatWindow extends React.Component {
   )
 
 componentWillUnmount() {
+    console.log('Inside chat window, umount?')
     this.updateEndUserCount(1); // 1 to bypass the coercion, reseting the current user's count to 0 when they exit this window.
     this.messageListener();
+    this.setTypingStatus(false);
     if(this.privateTypingListener) {
       this.privateTypingListener();
     }
@@ -405,11 +406,11 @@ componentWillUnmount() {
   }
 
   render() {
-    const {styles, dimensions} = this.props.global;
+    const {styles:redux, dimensions} = this.props.global;
     const {currentChannel} = this.props.channel;
     const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration } = this.state;
     return (
-    <LinearGradient  colors={['#000000', '#414141']} style={styles.container}>
+    <LinearGradient  colors={redux.container.colors} style={redux.container}>
       <Header
         containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#363940', elevation: 1 }}
         leftComponent={ <BackButton onBackPress={this.onBackPress} /> }
@@ -427,13 +428,12 @@ componentWillUnmount() {
       />
         <GiftedChat
             messages={this.state.messages}
-            onInputTextChanged={this.onInputTextChanged}
             keyboardShouldPersistTaps="never"
             onSend={messages => this.onSend(messages)}
             renderActions={this.renderChatActions}
             renderMessage={this.renderMessage}
             renderInputToolbar={this.renderInputToolbar}
-            textInputProps={this.textInputProps}
+            textInputProps={{ style: {color: 'white', fontFamily: 'RobotoMono-Regular', flex: 1} }}
             user={{
               _id: this.props.auth.user.uid,
               name: this.props.auth.user.name,

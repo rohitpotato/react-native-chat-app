@@ -41,12 +41,6 @@ class CustomDrawer extends React.Component {
     render() {
         return (
             <LinearGradient locations={[1, 0]} colors={['#363940', '#363940']} style={{ flex: 1 }}>
-                <ImageBackground
-                    source={require('../../assets/batman2.jpeg')}
-                    resizeMode="cover"
-                    style={{ height: ScreenHeight }}
-                    imageStyle={{ opacity: 0.5 }}
-                >
                     <View style={styles.header}>
                         <DrawerProfile
                             onPress={this.handlePress}
@@ -93,7 +87,7 @@ class CustomDrawer extends React.Component {
                            </TouchableOpacity>
                        </View>
                     </View>
-                </ImageBackground>
+          
             </LinearGradient>
         )
     }

@@ -12,7 +12,7 @@ const Header = props => {
             {/* leftIcon */}
 
             {props.leftIcon ? <View style={{...styles.leftIconContainer, marginLeft: dimensions.width*0.05}}>
-                <Ionicons name="md-arrow-back" color="black" size={25} />           
+                <Ionicons name="md-arrow-back" color="white" size={25} />           
             </View> : null}
 
             <View style={{...styles.headerContainer, marginLeft: dimensions.width*0.05}}>
