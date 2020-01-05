@@ -15,6 +15,7 @@ A react native chat application built using firebase, firebase cloud functions a
 8. Unread Messages Indicator
 9. Typing Indicator
 
+
 ## TODO
 1. Ios Support.
 2. <del>Implement Private Chat.<del>
