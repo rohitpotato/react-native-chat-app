@@ -1,6 +1,6 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, Keyboard, AppState, Clipboard } from 'react-native';
-import { withNavigation } from 'react-navigation';
+import { View, Text, TouchableOpacity, Keyboard, AppState, Clipboard, StatusBar } from 'react-native';
+import { withNavigation, NavigationEvents } from 'react-navigation';
 import { GiftedChat, InputToolbar} from 'react-native-gifted-chat';
 import Geolocation from '@react-native-community/geolocation';
 import LinearGradient from 'react-native-linear-gradient';
@@ -428,7 +428,6 @@ class ChatWindow extends React.Component {
   }
 
 componentWillUnmount() {
-    console.log('Inside chat window, umount?')
     this.updateEndUserCount(1); // 1 to bypass the coercion, reseting the current user's count to 0 when they exit this window.
     this.messageListener();
     this.setTypingStatus(false);
@@ -449,7 +448,13 @@ componentWillUnmount() {
     const {currentChannel} = this.props.channel;
     const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration, bubble_modal_visible } = this.state;
     return (
-    <LinearGradient  colors={redux.container.colors} style={redux.container}>
+    <LinearGradient colors={redux.container.colors} style={redux.container}>
+      <NavigationEvents 
+        onWillFocus={payload => {
+          StatusBar.setTranslucent(false)
+          StatusBar.setBackgroundColor(redux.container.colors[0])
+        }}
+      />
       <Header
         containerStyle={{ backgroundColor: 'transparent', height: dimensions.height*0.09, borderBottomWidth: 0.3, borderBottomColor: '#363940', elevation: 1 }}
         leftComponent={ <BackButton onBackPress={this.onBackPress} /> }
