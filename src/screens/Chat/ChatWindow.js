@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, Keyboard, StatusBar } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, AppState } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import { GiftedChat, InputToolbar} from 'react-native-gifted-chat';
 import Geolocation from '@react-native-community/geolocation';
@@ -45,7 +45,8 @@ class ChatWindow extends React.Component {
     error: '',
     statusRef: firebase.firestore().collection('status'),
     currentUserStatus: 'offline',
-    isTyping: null
+    isTyping: null,
+    appState: AppState.currentState
   }
 
   static navigationOptions = {
@@ -67,9 +68,17 @@ class ChatWindow extends React.Component {
       this._keyboardDidHide,
     );
     
+      AppState.addEventListener('change', this._handleAppStateChanged);
+
       // Typing Listener
       this.getTypingStatus();
   } 
+
+  _handleAppStateChanged = (nextAppState) => {
+    if(nextAppState == 'background' || nextAppState == 'inactive') {
+      this.setTypingStatus(false);
+    }
+  }
 
   getTypingStatus = () => {
     if(this.props.channel.isPrivate) {
@@ -401,6 +410,7 @@ componentWillUnmount() {
       this.channelTypingListener();
     }
     // this.typingListener();
+    AppState.removeEventListener('change', this._handleAppStateChanged);
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
   }
