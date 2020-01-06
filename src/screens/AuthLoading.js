@@ -38,7 +38,7 @@ import {setUser, clearUser, clearProfile} from '../redux/actions/authActions';
         const { styles: redux, dimensions } = this.props.global;
         return (
             <LinearGradient colors={redux.container.colors} style={styles.conatiner}>
-                <StatusBar hidden />
+                <StatusBar backgroundColor="transparent" />
                 <ImageBackground
                     source={require('../../assets/flash4.png')}
                     resizeMode="cover"
