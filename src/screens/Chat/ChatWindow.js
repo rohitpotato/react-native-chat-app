@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, TouchableOpacity, Keyboard, AppState } from 'react-native';
+import { View, Text, TouchableOpacity, Keyboard, AppState, Clipboard } from 'react-native';
 import { withNavigation } from 'react-navigation';
 import { GiftedChat, InputToolbar} from 'react-native-gifted-chat';
 import Geolocation from '@react-native-community/geolocation';
@@ -14,6 +14,7 @@ import { BackButton, Center, RightChatIcon } from '../../components/HeaderCompon
 import Modal from 'react-native-modal';
 import GiphyComponent from '../../components/GiphyComponent';
 import TimerModal from '../../components/TimerModal';
+import SelectMessage from '../../components/SelectMessage';
 
 import MessageComponent from '../../components/MessageComponent';
 
@@ -21,6 +22,7 @@ import {connect} from 'react-redux';
 import {GIPHY_API_KEY, MESSAGE_REMOVER_CLOUD_URL} from '../../config/constants';
 import firebase from '@react-native-firebase/app';
 import axios from 'axios';
+import { setProfile } from '../../redux/actions/authActions';
 import { debounce } from '../../helpers'
 
 class ChatWindow extends React.Component {
@@ -31,6 +33,7 @@ class ChatWindow extends React.Component {
     messages: [],
     gif_modal_visible: false,
     timer_modal_visible: false,
+    bubble_modal_visible: false,
     messagesRef: firebase.firestore().collection('messages'),
     privateMessagesRef: firebase.firestore().collection('privateMessages'),
     unreadMessagesRef: firebase.firestore().collection('unreadMessages'),
@@ -46,7 +49,8 @@ class ChatWindow extends React.Component {
     statusRef: firebase.firestore().collection('status'),
     currentUserStatus: 'offline',
     isTyping: null,
-    appState: AppState.currentState
+    appState: AppState.currentState,
+    selectedMessage: ''
   }
 
   static navigationOptions = {
@@ -398,6 +402,31 @@ class ChatWindow extends React.Component {
     />
   )
 
+  handleAvatarPress = (props) => {
+    this.props.setProfile({
+      uid: props._id,
+      name: props.name,
+      avatar: props.avatar
+    });
+    this.props.navigation.navigate('Profile');
+  }
+
+  onBubbleLongPress = (props, message) => {
+    if(message.messageType !== 'text') {
+      return;
+    }
+    this.setState({ bubble_modal_visible: !this.state.bubble_modal_visible, selectedMessage: message.text });
+  }
+
+  toggleBubbleModal = () => {
+    this.setState({ bubble_modal_visible: !this.state.bubble_modal_visible });
+  }
+
+  onCopyPress = () => {
+    Clipboard.setString(this.state.selectedMessage);
+    this.setState({ selectedMessage: '', bubble_modal_visible: false });
+  }
+
 componentWillUnmount() {
     console.log('Inside chat window, umount?')
     this.updateEndUserCount(1); // 1 to bypass the coercion, reseting the current user's count to 0 when they exit this window.
@@ -418,7 +447,7 @@ componentWillUnmount() {
   render() {
     const {styles:redux, dimensions} = this.props.global;
     const {currentChannel} = this.props.channel;
-    const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration } = this.state;
+    const { gif_modal_visible, random_gifs, search_results, gifQuery, timer_modal_visible, timer_duration, bubble_modal_visible } = this.state;
     return (
     <LinearGradient  colors={redux.container.colors} style={redux.container}>
       <Header
@@ -444,6 +473,8 @@ componentWillUnmount() {
             renderMessage={this.renderMessage}
             renderInputToolbar={this.renderInputToolbar}
             textInputProps={{ style: {color: 'white', fontFamily: 'RobotoMono-Regular', flex: 1} }}
+            onPressAvatar={this.handleAvatarPress}
+            onLongPress={this.onBubbleLongPress}
             user={{
               _id: this.props.auth.user.uid,
               name: this.props.auth.user.name,
@@ -497,6 +528,27 @@ componentWillUnmount() {
         </Modal>
       </View>
 
+      {/* CHAT BUBBLE LONG PRESS MODAL */}
+
+      <View>
+        <Modal 
+          animationIn="slideInUp"
+          animationOut="slideOutDown"
+          swipeDirection="down"
+          onSwipeComplete={this.toggleBubbleModal}
+          style={{ justifyContent: 'flex-end', margin: 0,}}
+          backdropOpacity={0}
+          onBackdropPress={this.toggleBubbleModal}
+          isVisible={bubble_modal_visible}
+          onBackButtonPress={this.toggleBubbleModal}
+          >
+           <SelectMessage 
+              onCopyPress={this.onCopyPress}
+              onCancelPress={this.toggleBubbleModal}
+           />
+        </Modal>
+      </View>
+
     </LinearGradient >
     )
   }
@@ -508,4 +560,4 @@ const mapStateToProps = state => ({
   channel: state.channel
 })
 
-export default withNavigation(connect(mapStateToProps)(ChatWindow));
+export default withNavigation(connect(mapStateToProps, { setProfile })(ChatWindow));

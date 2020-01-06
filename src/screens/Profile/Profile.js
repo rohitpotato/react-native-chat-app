@@ -11,6 +11,7 @@ import storage from '@react-native-firebase/storage';
 
 import {connect} from 'react-redux';
 import { setUser, setProfile } from '../../redux/actions/authActions'
+import { setChannel, setPrivateChannel } from '../../redux/actions/channelActions'
 import ImagePicker from 'react-native-image-picker';
 import uuid from 'uuid';
 import { withNavigation } from 'react-navigation';
@@ -60,7 +61,7 @@ class Profile extends React.Component {
             }   
         })
     }
-
+ 
     uploadPicture = () => {
         this.setState({ loading: true }, () => {
             const ext = this.state.photo.uri.split('.').pop(); // Extract image extension
@@ -131,6 +132,12 @@ class Profile extends React.Component {
         }
     }
 
+    handleSendMessage = () => {
+        this.props.setChannel(this.props.profile);
+        this.props.setPrivateChannel(true);
+        this.props.navigation.navigate('ChatWindow') 
+    }
+
     render() {
         const {styles:redux, dimensions} = this.props.global;
         const { uid, name, avatar} = this.props.profile;
@@ -167,6 +174,7 @@ class Profile extends React.Component {
                         </TouchableOpacity> : null}
 
                         {this.props.user.uid !== uid ? <TouchableOpacity 
+                          onPress={this.handleSendMessage}
                           activeOpacity={0.6}
                           style={{ alignItems: 'center', }}
                         >
@@ -227,4 +235,4 @@ const mapStateToProps = state => ({
     user: state.auth.user
 })
 
-export default withNavigation(connect(mapStateToProps, { setUser, setProfile })(Profile));
+export default withNavigation(connect(mapStateToProps, { setUser, setProfile, setChannel, setPrivateChannel })(Profile));
